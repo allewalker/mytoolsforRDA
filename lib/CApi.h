@@ -103,7 +103,7 @@ u32 ReadRBuffer(RBuffer *Buf, u8 *Data, u32 Len);
 u32 QueryRBuffer(RBuffer *Buf, u8 *Data, u32 Len);
 void InitRBuffer(RBuffer *Buf, u8 *Data, u32 MaxLen, u32 DataSize);
 void DelRBuffer(RBuffer *Buf, u32 Len);
-u32 WriteRBufferForce(RBuffer *Buf, const char *Data, u32 Len);
+u32 WriteRBufferForce(RBuffer *Buf, u8 *Data, u32 Len);
 u32 TransferUnpack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf);
 u32 TransferPack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf);
 /************************************************************************/

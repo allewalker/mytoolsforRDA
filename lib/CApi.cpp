@@ -409,7 +409,7 @@ void DelRBuffer(RBuffer *Buf, u32 Len)
 	}
 }
 
-u32 WriteRBufferForce(RBuffer *Buf, const char *Data, u32 Len)
+u32 WriteRBufferForce(RBuffer *Buf, u8 *Data, u32 Len)
 {
 	u32 i, p, cut_off = 0;
 	cut_off = Buf->MaxLength - Buf->Len;

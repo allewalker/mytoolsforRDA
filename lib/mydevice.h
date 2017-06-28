@@ -1,7 +1,11 @@
 #ifndef __MY_DEVICE_H__
 #define __MY_DEVICE_H__
-#include "CApi.h"
+
 #include <windows.h>
+#include "CApi.h"
+#include "config.h"
+#include "ComSerial.h"
+#define SATELLITEMAX 32
 enum
 {
 	LED_OFF,
@@ -59,8 +63,8 @@ enum SYS_VAR_ENUM
 {
 	SYS_TIME,
 	VBAT,
-	DATE,
-	TIME,
+	UTC_DATE,
+	UTC_TIME,
 	IO_VAL,
 	GSENSOR_VAL,
 	GSENSOR_ALARM_VAL,
@@ -297,7 +301,7 @@ typedef struct
 	u32 MaigcNum;
 	u32 CRC32;
 	u32 MainVersion;
-	u32 UpdateVersion;
+	u32 AppVersion;
 	u32 BinFileLen;
 }File_HeadStruct;
 
@@ -305,7 +309,7 @@ typedef struct
 {
 	File_HeadStruct Head;
 	Section_DataStruct SectionData[63];
-}Update_FileStruct;
+}Upgrade_FileStruct;
 
 
 typedef struct 
@@ -313,38 +317,87 @@ typedef struct
 	u32 ID;
 	u32 Param1;
 	u32 Param2;
-	u32 Param3;
+	void *pData;
 }OperationReq_Struct;
 
 enum EVENTENUM
 {
 	EVENT_THREAD_STOP = 0,
-	EVENT_COM_RX,
+	EVENT_COM_TX,
+	EVENT_MODE_SW,
 	EVENT_OPERATION_REQ,
+	EVENT_WAIT_NUM,
+	EVENT_COM_RX = EVENT_WAIT_NUM,
 	EVENT_NUM_MAX,
+
+	COM_MODE_NORMAL = 0,
+	COM_MODE_USP,
 };
 
-typedef struct
+enum OPERATIONREQENUM
 {
-	HANDLE hThread;
-	HANDLE Event[EVENT_NUM_MAX];
-	HWND mMainWnd;
+	REQ_RESET,
+	REQ_SET_PARAM,
+	REQ_UPGRADE,
+};
+
+enum WORKMODEENUM
+{
+	WORK_IDLE,
+	WORK_USP_AUTO,
+	WORK_NORMAL_COM,
+};
+
+typedef struct 
+{
 	u32 Var[VAR_MAX];
-	RMC_InfoStruct *RMCInfo;
-	GSV_InfoStruct GSVInfoSave;
-	Param_Byte64Struct nParam[PARAM_TYPE_MAX];
 	u8 IMEI[IMEI_LEN];
 	u8 IMSI[IMSI_LEN];
 	u8 ICCID[ICCID_LEN];
 	u8 State[STATE_MAX];
 	u8 Error[ERROR_MAX];
-	u32 ComNo[256];
+	RMC_InfoStruct RMCInfo;
+	GSV_InfoStruct GSVInfoSave;
+	Param_Byte64Struct nParam[PARAM_TYPE_MAX];
+}GDTM_DataStruct;
+
+typedef struct  
+{
+	u32 ComNo;
+	HANDLE hCom;
+	u32 SearchBR;
+	u32 CommBR;
+	u8 Mode;
+	u8 IsWork;
+}Com_CtrlStruct;
+
+typedef struct
+{
+	HANDLE hThread;
+	bool ThreadRun;
+	u8 WorkMode;
+	HANDLE Event[EVENT_NUM_MAX];
+	HWND mMainWnd;
+	u32 ComNoList[MAXCOMNO];
 	RBuffer OperationList;
 	OperationReq_Struct OperationData[128];
-
+	Upgrade_FileStruct UpgradeFileBuf;
+	u32 CRC32Table[256];
+	RBuffer UartTxBuf;
+	u8 UartTxData[DBG_BUF_MAX/10];
+	RBuffer UartRxBuf;
+	u8 UartRxData[DBG_BUF_MAX];
+	GDTM_DataStruct DevData;
+	Com_CtrlStruct ComCtrl;
 }SysVar_Struct;
 extern SysVar_Struct gSys;
 void MyDeviceInit(void);
 void MyDeviceSetWnd(HWND);
-void MyDeviceStop(void);
+void MyDeviceQuit(void);
+void MyDeviceStopUSPMode(void);
+void MyDeviceStartUSPMode(u32 SearchBR, u32 CommBR);
+void MyDeviceOperationReq(u32 ID, u32 Param1, u32 Param2, void *pData);
+void MyDeviceStopUartMode(void);
+void MyDeviceStartUartMode(u32 ComNo, u32 BR);
+void MyDeviceUartSend(u8 *Data, u32 Len);
 #endif

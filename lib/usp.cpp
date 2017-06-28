@@ -1,5 +1,6 @@
-#include "usp.h"
+
 #include "stdafx.h"
+#include "usp.h"
 #include "mydevice.h"
 enum USP_ENUM
 {
@@ -326,8 +327,8 @@ s32 USP_RWUIDTx(USP_AnalyzeStruct *USP, u32 *UID)
 {
 	if (UID)
 	{
-		memcpy(USP->OutBuf + sizeof(USP_HeadStruct), UID, sizeof(gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID));
-		USP->OutLen = sizeof(gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID);
+		memcpy(USP->OutBuf + sizeof(USP_HeadStruct), UID, sizeof(gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID));
+		USP->OutLen = sizeof(gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID);
 	}
 	else
 	{
@@ -339,8 +340,8 @@ s32 USP_RWUIDTx(USP_AnalyzeStruct *USP, u32 *UID)
 
 s32 USP_UploadUIDTx(USP_AnalyzeStruct *USP)
 {
-	memcpy(USP->OutBuf + sizeof(USP_HeadStruct), gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID, sizeof(gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID));
-	USP->OutLen = sizeof(gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID);
+	memcpy(USP->OutBuf + sizeof(USP_HeadStruct), gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID, sizeof(gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID));
+	USP->OutLen = sizeof(gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID);
 	USP_SetHead(USP, USP_CMD_UPLOAD_UID, 0);
 	return 0;
 }
@@ -356,32 +357,31 @@ s32 USP_UploadVarTx(USP_AnalyzeStruct *USP)
 {
 	u32 Pos = sizeof(USP_HeadStruct);
 
-	memcpy(USP->OutBuf + Pos, &gSys.Var[0], sizeof(gSys.Var));
-	Pos += sizeof(gSys.Var);
+	memcpy(USP->OutBuf + Pos, &gSys.DevData.Var[0], sizeof(gSys.DevData.Var));
+	Pos += sizeof(gSys.DevData.Var);
 
-	memcpy(USP->OutBuf + Pos, &gSys.State[0], sizeof(gSys.State));
-	Pos += sizeof(gSys.State);
+	memcpy(USP->OutBuf + Pos, &gSys.DevData.State[0], sizeof(gSys.DevData.State));
+	Pos += sizeof(gSys.DevData.State);
 
-	memcpy(USP->OutBuf + Pos, &gSys.Error[0], sizeof(gSys.Error));
-	Pos += sizeof(gSys.Error);
+	memcpy(USP->OutBuf + Pos, &gSys.DevData.Error[0], sizeof(gSys.DevData.Error));
+	Pos += sizeof(gSys.DevData.Error);
 
-	memcpy(USP->OutBuf + Pos, &gSys.IMEI[0], sizeof(gSys.IMEI));
-	Pos += sizeof(gSys.IMEI);
+	memcpy(USP->OutBuf + Pos, &gSys.DevData.IMEI[0], sizeof(gSys.DevData.IMEI));
+	Pos += sizeof(gSys.DevData.IMEI);
 
-	memcpy(USP->OutBuf + Pos, &gSys.IMSI[0], sizeof(gSys.IMSI));
-	Pos += sizeof(gSys.IMSI);
+	memcpy(USP->OutBuf + Pos, &gSys.DevData.IMSI[0], sizeof(gSys.DevData.IMSI));
+	Pos += sizeof(gSys.DevData.IMSI);
 
-	memcpy(USP->OutBuf + Pos, &gSys.ICCID[0], sizeof(gSys.ICCID));
-	Pos += sizeof(gSys.ICCID);
+	memcpy(USP->OutBuf + Pos, &gSys.DevData.ICCID[0], sizeof(gSys.DevData.ICCID));
+	Pos += sizeof(gSys.DevData.ICCID);
 
-	memcpy(USP->OutBuf + Pos, gSys.RMCInfo, sizeof(RMC_InfoStruct));
+	memcpy(USP->OutBuf + Pos, &gSys.DevData.RMCInfo, sizeof(RMC_InfoStruct));
 	Pos += sizeof(RMC_InfoStruct);
 
-	memcpy(USP->OutBuf + Pos, &gSys.GSVInfoSave, sizeof(GSV_InfoStruct));
+	memcpy(USP->OutBuf + Pos, &gSys.DevData.GSVInfoSave, sizeof(GSV_InfoStruct));
 	Pos += sizeof(GSV_InfoStruct);
 	USP->OutLen = Pos - sizeof(USP_HeadStruct);
 	USP_SetHead(USP, USP_CMD_UPLOAD_VAR, 0);
-	gSys.Var[GSENSOR_KEEP_VAL] = 0;
 	return 0;
 }
 
@@ -414,14 +414,14 @@ s32 USP_UploadParamTx(USP_AnalyzeStruct *USP, u8 Sn)
 	{
 		for (i = 0; i < PARAM_TYPE_MAX; i++)
 		{
-			memcpy(USP->OutBuf + sizeof(USP_HeadStruct)+Pos, gSys.nParam[i].Data.pad, sizeof(Param_Byte60Union));
+			memcpy(USP->OutBuf + sizeof(USP_HeadStruct)+Pos, gSys.DevData.nParam[i].Data.pad, sizeof(Param_Byte60Union));
 			Pos += sizeof(Param_Byte60Union);
 		}
 		USP->OutLen = 1 + sizeof(Param_Byte60Union)* PARAM_TYPE_MAX;
 	}
 	else
 	{
-		memcpy(USP->OutBuf + sizeof(USP_HeadStruct)+Pos, gSys.nParam[ParamType].Data.pad, sizeof(Param_Byte60Union));
+		memcpy(USP->OutBuf + sizeof(USP_HeadStruct)+Pos, gSys.DevData.nParam[ParamType].Data.pad, sizeof(Param_Byte60Union));
 		USP->OutLen = 1 + sizeof(Param_Byte60Union);
 	}
 

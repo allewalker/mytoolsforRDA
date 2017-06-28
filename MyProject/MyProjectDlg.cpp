@@ -10,8 +10,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
-extern GDTM_DataStruct gRxData;
 // CMyProjectDlg 对话框
 enum 
 {
@@ -82,8 +80,10 @@ BEGIN_MESSAGE_MAP(CMyProjectDlg, CDialogEx)
 	ON_MESSAGE(WM_CORE_UPDATE_PARAM, &CMyProjectDlg::OnUpdateParamMessage)
 	ON_MESSAGE(WM_CORE_UPDATE_VERSION, &CMyProjectDlg::OnUpdateVersionMessage)
 	ON_MESSAGE(WM_CORE_UPDATE_DL, &CMyProjectDlg::OnUpdateDLMessage)
+	ON_MESSAGE(WM_COM_RX, &CMyProjectDlg::OnComRxMessage)
+	ON_MESSAGE(WM_COM_STATE, &CMyProjectDlg::OnComStateMessage)
 	ON_COMMAND(ID_COM_CTRL, &CMyProjectDlg::OnComCtrl)
-	ON_COMMAND(ID_SLIP_CTRL, &CMyProjectDlg::OnSlipCtrl)
+	ON_COMMAND(ID_UPGRADE_CTRL, &CMyProjectDlg::OnUpgradeCtrl)
 END_MESSAGE_MAP()
 
 
@@ -100,13 +100,13 @@ BOOL CMyProjectDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO:  在此添加额外的初始化代码
-	mMyShowEdit.SetLimitText(UINT16_MAX);
+	mMyShowEdit.SetLimitText(UINT32_MAX);
 	gDBG.SetWnd(m_hWnd);
 	MyDeviceSetWnd(m_hWnd);
 	mComCtrl.Create(IDD_COM_CTRL_DIALOG, this);
 	mComCtrl.ShowWindow(SW_HIDE);
-	mSlipCtrl.Create(IDD_SLIP_CTRL_DIALOG, this);
-	mSlipCtrl.ShowWindow(SW_HIDE);
+	mDevUpgrade.Create(IDD_DEV_UPGRADE_DIALOG, this);
+	mDevUpgrade.ShowWindow(SW_HIDE);
 	//初始化表格
 	DWORD dwStyle = mMyShowList.GetExtendedStyle();
 	dwStyle |= LVS_EX_FULLROWSELECT;// 选中某行使整行高亮（只适用与report 风格的listctrl ）
@@ -266,23 +266,23 @@ BOOL CMyProjectDlg::OnInitDialog()
 	
 	Reset();
 
-	AES_CtrlStruct AES;
-	u8 Key[16] = { 32, 87, 47, 82, 54, 75, 63, 71, 48, 80, 65, 88, 17, 99, 45, 43 };
-	u8 Temp1[16] = { 0x06, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-	u8 Temp2[16] = { 0xcf, 0x2a, 0x12, 0xfd, 0xf7, 0x8f, 0xa0, 0xa8, 0x35, 0x83, 0x27, 0x5e, 0x9f, 0xd0, 0x73, 0xdc };
-	u8 Temp3[16];
-	memset(&AES, 0, sizeof(AES));
-	memcpy(AES.AESKey, Key, 16);
-	memset(Temp3, 0x00, sizeof(Temp3));
-	
-	AES_EncInit(&AES);
-	AES_Encrypt(&AES, Temp1, Temp3);
-	gDBG.HexTrace(Temp3, 16);
-
-	memset(Temp3, 0x00, sizeof(Temp3));
-	AES_DecInit(&AES);
-	AES_Decrypt(&AES, Temp2, Temp3);
-	gDBG.HexTrace(Temp3, 16);
+// 	AES_CtrlStruct AES;
+// 	u8 Key[16] = { 32, 87, 47, 82, 54, 75, 63, 71, 48, 80, 65, 88, 17, 99, 45, 43 };
+// 	u8 Temp1[16] = { 0x06, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+// 	u8 Temp2[16] = { 0xcf, 0x2a, 0x12, 0xfd, 0xf7, 0x8f, 0xa0, 0xa8, 0x35, 0x83, 0x27, 0x5e, 0x9f, 0xd0, 0x73, 0xdc };
+// 	u8 Temp3[16];
+// 	memset(&AES, 0, sizeof(AES));
+// 	memcpy(AES.AESKey, Key, 16);
+// 	memset(Temp3, 0x00, sizeof(Temp3));
+// 	
+// 	AES_EncInit(&AES);
+// 	AES_Encrypt(&AES, Temp1, Temp3);
+// 	gDBG.HexTrace(Temp3, 16);
+// 
+// 	memset(Temp3, 0x00, sizeof(Temp3));
+// 	AES_DecInit(&AES);
+// 	AES_Decrypt(&AES, Temp2, Temp3);
+// 	gDBG.HexTrace(Temp3, 16);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -332,7 +332,7 @@ void CMyProjectDlg::OnClose()
 		return;
 	}
 	mComCtrl.Stop();
-	MyDeviceStop();
+	MyDeviceQuit();
 	WaitForSingleObject(gSys.hThread, 50);
 	CDialogEx::OnClose();
 }
@@ -367,7 +367,7 @@ LRESULT CMyProjectDlg::OnTraceMessage(WPARAM wParam, LPARAM lParam)
 			gDBG.m_MsgBuffer.Offset = 0;
 		}
 		ReleaseSemaphore(gDBG.hInSem, 1, NULL);
-		ShowReceiveData(Buf, Len, Buf1, Buf2, &mMyShowEdit, mLastByte);
+		mLastByte = ShowReceiveData(Buf, Len, Buf1, Buf2, &mMyShowEdit, mLastByte);
 		break;
 	case WAIT_FAILED:
 		//ReleaseSemaphore(gDBG.hInSem, 1, NULL);
@@ -397,33 +397,33 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 	u32 dwTemp;
 	for (i = 0; i < VAR_MAX; i++)
 	{
-		if (gRxData.Var[i] != gShowData.Var[i])
+		if (gSys.DevData.Var[i] != ShowData.Var[i])
 		{
-			gShowData.Var[i] = gRxData.Var[i];
+			ShowData.Var[i] = gSys.DevData.Var[i];
 			switch (i)
 			{
 			case UTC_DATE:
-				uDate.dwDate = gShowData.Var[i];
+				uDate.dwDate = ShowData.Var[i];
 				Str.Format(_T("%d-%d-%d"), uDate.Date.Year, uDate.Date.Mon, uDate.Date.Day);
 				break;
 			case UTC_TIME:
-				uTime.dwTime = gShowData.Var[i];
+				uTime.dwTime = ShowData.Var[i];
 				Str.Format(_T("%d:%d:%d"), uTime.Time.Hour, uTime.Time.Min, uTime.Time.Sec);
 				break;
 			case IO_VAL:
-				uIO.Val = gShowData.Var[i];
+				uIO.Val = ShowData.Var[i];
 				Str.Format(_T("%d:%d:%d"), uIO.IOVal.VACC, uIO.IOVal.VCC, uIO.IOVal.ACC);
 				break;
 			case CELL_ID:
-				Str.Format(_T("%08x"), gShowData.Var[i]);
+				Str.Format(_T("%08x"), ShowData.Var[i]);
 				break;
 			case GSENSOR_VAL:
 			case GSENSOR_ALARM_VAL:
 			case GSENSOR_MONITOR_VAL:
 			case GSENSOR_KEEP_VAL:
-				if (gShowData.Var[i] > 5)
+				if (ShowData.Var[i] > 5)
 				{
-					Str.Format(_T("%d"), gShowData.Var[i]);
+					Str.Format(_T("%d"), ShowData.Var[i]);
 				}
 				else
 				{
@@ -431,7 +431,7 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 				}
 				break;
 			default:
-				Str.Format(_T("%d"), gShowData.Var[i]);
+				Str.Format(_T("%d"), ShowData.Var[i]);
 				break;
 			}
 			mMyShowList.SetItemText(i, 2 + 2 * LIST_VAR_COL, Str);
@@ -440,106 +440,106 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 
 	for (i = 0; i < STATE_MAX; i++)
 	{
-		if (gRxData.State[i] != gShowData.State[i])
+		if (gSys.DevData.State[i] != ShowData.State[i])
 		{
-			gShowData.State[i] = gRxData.State[i];
-			Str.Format(_T("%d"), gShowData.State[i]);
+			ShowData.State[i] = gSys.DevData.State[i];
+			Str.Format(_T("%d"), ShowData.State[i]);
 			mMyShowList.SetItemText(i + VAR_MAX, 2 + 2 * LIST_VAR_COL, Str);
 		}
 	}
 
 	for (i = 0; i < ERROR_MAX; i++)
 	{
-		if (gRxData.Error[i] != gShowData.Error[i])
+		if (gSys.DevData.Error[i] != ShowData.Error[i])
 		{
-			gShowData.Error[i] = gRxData.Error[i];
-			Str.Format(_T("%d"), gShowData.Error[i]);
+			ShowData.Error[i] = gSys.DevData.Error[i];
+			Str.Format(_T("%d"), ShowData.Error[i]);
 			mMyShowList.SetItemText(i + VAR_MAX + STATE_MAX, 2 + 2 * LIST_VAR_COL, Str);
 		}
 	}
 
-	if (memcmp(gShowData.IMEI, gRxData.IMEI, IMEI_LEN))
+	if (memcmp(ShowData.IMEI, gSys.DevData.IMEI, IMEI_LEN))
 	{
-		memcpy(gShowData.IMEI, gRxData.IMEI, IMEI_LEN);
-		Str.Format(_T("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), gShowData.IMEI[0], gShowData.IMEI[1], gShowData.IMEI[2], gShowData.IMEI[3], gShowData.IMEI[4]
-			, gShowData.IMEI[5], gShowData.IMEI[6], gShowData.IMEI[7], gShowData.IMEI[8], gShowData.IMEI[9]);
+		memcpy(ShowData.IMEI, gSys.DevData.IMEI, IMEI_LEN);
+		Str.Format(_T("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), ShowData.IMEI[0], ShowData.IMEI[1], ShowData.IMEI[2], ShowData.IMEI[3], ShowData.IMEI[4]
+			, ShowData.IMEI[5], ShowData.IMEI[6], ShowData.IMEI[7], ShowData.IMEI[8], ShowData.IMEI[9]);
 		mMyShowList.SetItemText(IMEI_RAW, 2 + 2 * LIST_OTHER_PARAM_COL, Str);
 	}
 
-	if (memcmp(gShowData.IMSI, gRxData.IMSI, IMSI_LEN))
+	if (memcmp(ShowData.IMSI, gSys.DevData.IMSI, IMSI_LEN))
 	{
-		memcpy(gShowData.IMSI, gRxData.IMSI, IMSI_LEN);
-		Str.Format(_T("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), gShowData.IMSI[0], gShowData.IMSI[1], gShowData.IMSI[2], gShowData.IMSI[3], gShowData.IMSI[4]
-			, gShowData.IMSI[5], gShowData.IMSI[6], gShowData.IMSI[7], gShowData.IMSI[8], gShowData.IMSI[9]);
+		memcpy(ShowData.IMSI, gSys.DevData.IMSI, IMSI_LEN);
+		Str.Format(_T("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), ShowData.IMSI[0], ShowData.IMSI[1], ShowData.IMSI[2], ShowData.IMSI[3], ShowData.IMSI[4]
+			, ShowData.IMSI[5], ShowData.IMSI[6], ShowData.IMSI[7], ShowData.IMSI[8], ShowData.IMSI[9]);
 		mMyShowList.SetItemText(IMSI_RAW, 2 + 2 * LIST_OTHER_PARAM_COL, Str);
 	}
 
-	if (memcmp(gShowData.ICCID, gRxData.ICCID, ICCID_LEN))
+	if (memcmp(ShowData.ICCID, gSys.DevData.ICCID, ICCID_LEN))
 	{
-		memcpy(gShowData.ICCID, gRxData.ICCID, ICCID_LEN);
-		Str.Format(_T("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), gShowData.ICCID[0], gShowData.ICCID[1], gShowData.ICCID[2], gShowData.ICCID[3], gShowData.ICCID[4]
-			, gShowData.ICCID[5], gShowData.ICCID[6], gShowData.ICCID[7], gShowData.ICCID[8], gShowData.ICCID[9]);
+		memcpy(ShowData.ICCID, gSys.DevData.ICCID, ICCID_LEN);
+		Str.Format(_T("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), ShowData.ICCID[0], ShowData.ICCID[1], ShowData.ICCID[2], ShowData.ICCID[3], ShowData.ICCID[4]
+			, ShowData.ICCID[5], ShowData.ICCID[6], ShowData.ICCID[7], ShowData.ICCID[8], ShowData.ICCID[9]);
 		mMyShowList.SetItemText(ICCID_RAW, 2 + 2 * LIST_OTHER_PARAM_COL, Str);
 	}
 
-	if (memcmp(&gShowData.RMC.UTCDate, &gRxData.RMC.UTCDate, sizeof(Date_UserDataStruct)))
+	if (memcmp(&ShowData.RMCInfo.UTCDate, &gSys.DevData.RMCInfo.UTCDate, sizeof(Date_UserDataStruct)))
 	{
-		gShowData.RMC.UTCDate = gRxData.RMC.UTCDate;
-		uDate.Date = gShowData.RMC.UTCDate;
+		ShowData.RMCInfo.UTCDate = gSys.DevData.RMCInfo.UTCDate;
+		uDate.Date = ShowData.RMCInfo.UTCDate;
 		Str.Format(_T("%d-%d-%d"), uDate.Date.Year, uDate.Date.Mon, uDate.Date.Day);
 		mMyShowList.SetItemText(GPS_INFO_UTC_DATE_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
 
-	if (memcmp(&gShowData.RMC.UTCTime, &gRxData.RMC.UTCTime, sizeof(Date_UserDataStruct)))
+	if (memcmp(&ShowData.RMCInfo.UTCTime, &gSys.DevData.RMCInfo.UTCTime, sizeof(Date_UserDataStruct)))
 	{
-		gShowData.RMC.UTCTime = gRxData.RMC.UTCTime;
-		uTime.Time = gShowData.RMC.UTCTime;
+		ShowData.RMCInfo.UTCTime = gSys.DevData.RMCInfo.UTCTime;
+		uTime.Time = ShowData.RMCInfo.UTCTime;
 		Str.Format(_T("%d:%d:%d"), uTime.Time.Hour, uTime.Time.Min, uTime.Time.Sec);
 		mMyShowList.SetItemText(GPS_INFO_UTC_TIME_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
 
-	if (gShowData.RMC.LocatStatus != gRxData.RMC.LocatStatus)
+	if (ShowData.RMCInfo.LocatStatus != gSys.DevData.RMCInfo.LocatStatus)
 	{	
-		gShowData.RMC.LocatStatus = gRxData.RMC.LocatStatus;
-		Str.Format(_T("%d"), gShowData.RMC.LocatStatus);
+		ShowData.RMCInfo.LocatStatus = gSys.DevData.RMCInfo.LocatStatus;
+		Str.Format(_T("%d"), ShowData.RMCInfo.LocatStatus);
 		mMyShowList.SetItemText(GPS_INFO_LOCAT_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	} 
 
-	if (gShowData.RMC.Speed != gRxData.RMC.Speed)
+	if (ShowData.RMCInfo.Speed != gSys.DevData.RMCInfo.Speed)
 	{
-		gShowData.RMC.Speed = gRxData.RMC.Speed;
-		Str.Format(_T("%d"), gShowData.RMC.Speed);
+		ShowData.RMCInfo.Speed = gSys.DevData.RMCInfo.Speed;
+		Str.Format(_T("%d"), ShowData.RMCInfo.Speed);
 		mMyShowList.SetItemText(GPS_INFO_SPEED_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
 
-	if (gShowData.RMC.LatNS != gRxData.RMC.LatNS)
+	if (ShowData.RMCInfo.LatNS != gSys.DevData.RMCInfo.LatNS)
 	{
-		gShowData.RMC.LatNS = gRxData.RMC.LatNS;
-		Str.Format(_T("%c"), gShowData.RMC.LatNS);
+		ShowData.RMCInfo.LatNS = gSys.DevData.RMCInfo.LatNS;
+		Str.Format(_T("%c"), ShowData.RMCInfo.LatNS);
 		mMyShowList.SetItemText(GPS_INFO_LAT_NS_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
 
-	if (gShowData.RMC.LgtEW != gRxData.RMC.LgtEW)
+	if (ShowData.RMCInfo.LgtEW != gSys.DevData.RMCInfo.LgtEW)
 	{
-		gShowData.RMC.LgtEW = gRxData.RMC.LgtEW;
-		Str.Format(_T("%c"), gShowData.RMC.LgtEW);
+		ShowData.RMCInfo.LgtEW = gSys.DevData.RMCInfo.LgtEW;
+		Str.Format(_T("%c"), ShowData.RMCInfo.LgtEW);
 		mMyShowList.SetItemText(GPS_INFO_LGT_EW_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
 
-	if ((gShowData.RMC.LatDegree * 1000000 + gShowData.RMC.LatMin) != (gRxData.RMC.LatDegree * 1000000 + gRxData.RMC.LatMin))
+	if ((ShowData.RMCInfo.LatDegree * 1000000 + ShowData.RMCInfo.LatMin) != (gSys.DevData.RMCInfo.LatDegree * 1000000 + gSys.DevData.RMCInfo.LatMin))
 	{
-		gShowData.RMC.LatDegree = gRxData.RMC.LatDegree;
-		gShowData.RMC.LatMin = gRxData.RMC.LatMin;
-		dwTemp = gShowData.RMC.LatDegree * 1000000 + gShowData.RMC.LatMin;
+		ShowData.RMCInfo.LatDegree = gSys.DevData.RMCInfo.LatDegree;
+		ShowData.RMCInfo.LatMin = gSys.DevData.RMCInfo.LatMin;
+		dwTemp = ShowData.RMCInfo.LatDegree * 1000000 + ShowData.RMCInfo.LatMin;
 		Str.Format(_T("%d"), dwTemp);
 		mMyShowList.SetItemText(GPS_INFO_LAT_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
 
-	if ((gShowData.RMC.LgtDegree * 1000000 + gShowData.RMC.LgtMin) != (gRxData.RMC.LgtDegree * 1000000 + gRxData.RMC.LgtMin))
+	if ((ShowData.RMCInfo.LgtDegree * 1000000 + ShowData.RMCInfo.LgtMin) != (gSys.DevData.RMCInfo.LgtDegree * 1000000 + gSys.DevData.RMCInfo.LgtMin))
 	{
-		gShowData.RMC.LgtDegree = gRxData.RMC.LgtDegree;
-		gShowData.RMC.LgtMin = gRxData.RMC.LgtMin;
-		dwTemp = gShowData.RMC.LgtDegree * 1000000 + gShowData.RMC.LgtMin;
+		ShowData.RMCInfo.LgtDegree = gSys.DevData.RMCInfo.LgtDegree;
+		ShowData.RMCInfo.LgtMin = gSys.DevData.RMCInfo.LgtMin;
+		dwTemp = ShowData.RMCInfo.LgtDegree * 1000000 + ShowData.RMCInfo.LgtMin;
 		Str.Format(_T("%d"), dwTemp);
 		mMyShowList.SetItemText(GPS_INFO_LGT_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
@@ -590,8 +590,20 @@ void CMyProjectDlg::Reset()
 	}
 }
 
-void CMyProjectDlg::OnSlipCtrl()
+void CMyProjectDlg::OnUpgradeCtrl()
 {
 	// TODO:  在此添加命令处理程序代码
-	mSlipCtrl.ShowWindow(SW_SHOW);
+	mDevUpgrade.ShowWindow(SW_SHOW);
+}
+
+LRESULT CMyProjectDlg::OnComRxMessage(WPARAM wParam, LPARAM lParam)
+{
+	mComCtrl.OnComRxMessage();
+	return 0; 
+}
+
+LRESULT CMyProjectDlg::OnComStateMessage(WPARAM wParam, LPARAM lParam)
+{
+	mComCtrl.OnComStateMessage();
+	return 0;
 }

@@ -13,7 +13,7 @@
 #include "usp.h"
 #include "mydevice.h"
 #include "ComCtrl.h"
-#include "SlipCtrl.h"
+#include "DevUpgrade.h"
 // CMyProjectApp: 
 // 有关此类的实现，请参阅 MyProject.cpp
 //

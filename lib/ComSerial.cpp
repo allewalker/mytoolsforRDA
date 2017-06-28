@@ -232,7 +232,7 @@ uint32_t WriteCom(volatile HANDLE hCom, unsigned char *pBuf, DWORD BufLen)
 	
 	OVERLAPPED Wol;          //写操作OVERLAPPED结构变量
 	memset(&Wol, 0, sizeof(Wol));
-	Wol.hEvent = CreateEvent(NULL, true, false, NULL);
+	//Wol.hEvent = CreateEvent(NULL, true, false, NULL);
 	DWORD    Error;
 	if (ClearCommError(hCom, &Error, NULL) && Error > 0) //清除错误
 		PurgeComm(hCom, PURGE_TXABORT | PURGE_TXCLEAR);
@@ -249,69 +249,52 @@ uint32_t WriteCom(volatile HANDLE hCom, unsigned char *pBuf, DWORD BufLen)
 	return WriteLen;
 }
 
-// uint32_t ReadCom(volatile HANDLE hCom, uint8_t *pBuf, uint32_t BufLen, DWORD *ErrorCode, u32 To)
-// {
-// 	uint32_t Cnt = 0;
-// 	COMSTAT  Stat;
-// 	DWORD Error, ReadLen, DummyLen, RolLen = 0;
-// 	DWORD dwMsecond = 0;
-// 	LARGE_INTEGER cpuHz, startCnt, targetCnt;
-// 	cpuHz.QuadPart = 0;
-// 	startCnt.QuadPart = 0;
-// 	targetCnt.QuadPart = 0;
-// 	QueryPerformanceFrequency(&cpuHz);
-// 	QueryPerformanceCounter(&startCnt);
-// 	*ErrorCode = 0;
-// 	do
-// 	{
-// 		ClearCommError(hCom, &Error, &Stat);
-// 		if (Error)
-// 		{
-// 			*ErrorCode = GetLastError();
-// 			return 0;
-// 		}
-// 		if (Stat.cbInQue)
-// 		{
-// 			break;
-// 		}
-// 
-// 		QueryPerformanceCounter(&targetCnt);
-// 		dwMsecond = (DWORD)((targetCnt.QuadPart - startCnt.QuadPart) / cpuHz.QuadPart * 1000);
-// 	} while (dwMsecond < To);
-// 
-// 	if (dwMsecond >= To)
-// 	{
-// 		return 0;
-// 	}
-// 	ReadLen = (BufLen <= Stat.cbInQue) ? BufLen : Stat.cbInQue;
-// 	OVERLAPPED Rol;
-// 	memset(&Rol, 0, sizeof(Rol));
-// 	ReadFile(hCom, pBuf, ReadLen, &DummyLen, &Rol);
-// 
-// 	Error = GetLastError();
-// 	if (Error == ERROR_IO_PENDING)
-// 	{
-// 		GetOverlappedResult(hCom, &Rol, &RolLen, TRUE);
-// 		// GetOverlappedResult函数的最后一个参数设为TRUE，
-// 		//函数会一直等待，直到读操作完成或由于错误而返回。
-// 		Error = GetLastError();
-// 		if (Error)
-// 		{
-// 			TRACE("Error = %d\r\n", Error);
-// 			*ErrorCode = Error;
-// 			return 0;
-// 		}
-// 		return RolLen;
-// 	}
-// 	else if (Error)
-// 	{
-// 		TRACE("Error = %d\r\n", Error);
-// 		*ErrorCode = Error;
-// 		return 0;
-// 	}
-// 	else
-// 	{
-// 		return DummyLen;
-// 	}
-// }
+uint32_t ReadCom(volatile HANDLE hCom, uint8_t *pBuf, uint32_t BufLen, DWORD *ErrorCode)
+{
+	COMSTAT  Stat;
+	DWORD Error, ReadLen, DummyLen;
+	*ErrorCode = 0;
+	ClearCommError(hCom, &Error, &Stat);
+	if (Error)
+	{
+		*ErrorCode = GetLastError();
+		return 0;
+	}
+
+	if (!Stat.cbInQue)
+	{
+		return 0;
+	}
+
+	ReadLen = (BufLen <= Stat.cbInQue) ? BufLen : Stat.cbInQue;
+	OVERLAPPED Rol;
+	memset(&Rol, 0, sizeof(Rol));
+	ReadFile(hCom, pBuf, ReadLen, &DummyLen, &Rol);
+
+	Error = GetLastError();
+	if (Error == ERROR_IO_PENDING)
+	{
+		GetOverlappedResult(hCom, &Rol, &DummyLen, TRUE);
+		// GetOverlappedResult函数的最后一个参数设为TRUE，
+		//函数会一直等待，直到读操作完成或由于错误而返回。
+		Error = GetLastError();
+		if (Error)
+		{
+			TRACE("Error = %d\r\n", Error);
+			*ErrorCode = Error;
+			return 0;
+		}
+		return DummyLen;
+	}
+	else if (Error)
+	{
+		TRACE("Error = %d\r\n", Error);
+		*ErrorCode = Error;
+		return 0;
+	}
+	else
+	{
+		return DummyLen;
+	}
+}
 

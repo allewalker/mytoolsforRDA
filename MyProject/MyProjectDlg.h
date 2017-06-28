@@ -44,12 +44,14 @@ public:
 	afx_msg LRESULT OnUpdateParamMessage(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnUpdateVersionMessage(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnUpdateDLMessage(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnComRxMessage(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnComStateMessage(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnComCtrl();
 private:
 	CComCtrl mComCtrl;
-	CSlipCtrl mSlipCtrl;
-	GDTM_DataStruct gShowData;
+	CDevUpgrade mDevUpgrade;
+	GDTM_DataStruct ShowData;
 	void Reset();
 public:
-	afx_msg void OnSlipCtrl();
+	afx_msg void OnUpgradeCtrl();
 };

@@ -25,7 +25,7 @@ IMPLEMENT_DYNAMIC(CComCtrl, CDialogEx)
 CComCtrl::CComCtrl(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CComCtrl::IDD, pParent)
 {
-	DLData = new uint8_t[1024 * 1024];
+	mLastByte = 0;
 }
 
 CComCtrl::~CComCtrl()
@@ -35,38 +35,37 @@ CComCtrl::~CComCtrl()
 void CComCtrl::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	int i;
-	DDX_Control(pDX, IDC_SLIP_COMM_BR_EDIT, mCommBREdit);
-	DDX_Control(pDX, IDC_SLIP_SEARCH_BR_EDIT, mSearchBREdit);
-	DDX_Control(pDX, IDC_SLIP_STOP_BUTTON, mStopButton);
-	DDX_Control(pDX, IDC_SLIP_WORK_BUTTON, mWorkButton);
+	DDX_Control(pDX, IDC_COM_RX_EDIT, mComRXEdit);
+	DDX_Control(pDX, IDC_COM_RX_SAVE_BUTTON, mComRXSaveButton);
+	DDX_Control(pDX, IDC_COM_SWITCH_BUTTON, mComSwitchButton);
+	DDX_Control(pDX, IDC_COM_TX_BUTTON, mComTXButton);
+	DDX_Control(pDX, IDC_COM_TX_EDIT, mComTXEdit);
+	DDX_Control(pDX, IDC_COM_TX_NL_BUTTON, mComTXNewlineButton);
+	DDX_Control(pDX, IDC_USP_COMM_BR_EDIT, mUSPCommBREdit);
+	DDX_Control(pDX, IDC_USP_SEARCH_BR_EDIT, mUSPSearchBREdit);
+	DDX_Control(pDX, IDC_USP_STOP_BUTTON, mUSPStopButton);
+	DDX_Control(pDX, IDC_USP_WORK_BUTTON, mUSPWorkButton);
+	DDX_Control(pDX, IDC_COMNO_COMBO, mComNoCombox);
+	DDX_Control(pDX, IDC_COM_CLEAR_BUTTON, mComClearButton);
 }
 
 
 BEGIN_MESSAGE_MAP(CComCtrl, CDialogEx)
 
-	ON_WM_TIMER()
 
-	ON_BN_CLICKED(IDC_SLIP_WORK_BUTTON, &CComCtrl::OnBnClickedSlipWorkButton)
-	ON_BN_CLICKED(IDC_SLIP_STOP_BUTTON, &CComCtrl::OnBnClickedSlipStopButton)
+	ON_BN_CLICKED(IDC_COM_SWITCH_BUTTON, &CComCtrl::OnBnClickedComSwitchButton)
+	ON_BN_CLICKED(IDC_USP_WORK_BUTTON, &CComCtrl::OnBnClickedUspWorkButton)
+	ON_BN_CLICKED(IDC_USP_STOP_BUTTON, &CComCtrl::OnBnClickedUspStopButton)
+	ON_BN_CLICKED(IDC_COM_TX_BUTTON, &CComCtrl::OnBnClickedComTxButton)
+	ON_BN_CLICKED(IDC_COM_TX_NL_BUTTON, &CComCtrl::OnBnClickedComTxNlButton)
+	ON_BN_CLICKED(IDC_COM_RX_SAVE_BUTTON, &CComCtrl::OnBnClickedComRxSaveButton)
+	ON_CBN_DROPDOWN(IDC_COMNO_COMBO, &CComCtrl::OnDropdownComnoCombo)
+	ON_CBN_SELCHANGE(IDC_COMNO_COMBO, &CComCtrl::OnSelchangeComnoCombo)
+	ON_BN_CLICKED(IDC_COM_CLEAR_BUTTON, &CComCtrl::OnBnClickedComClearButton)
 END_MESSAGE_MAP()
 
 
 // CComCtrl 消息处理程序
-
-void CComCtrl::OnTimer(UINT_PTR nIDEvent)
-{
-	// TODO:  在此添加消息处理程序代码和/或调用默认值
-	uint32_t GetVarFrq;
-	switch (nIDEvent)
-	{
-
-	default:
-		break;
-	}
-	CDialogEx::OnTimer(nIDEvent);
-}
-
 
 void CComCtrl::UpdateProfile()
 {
@@ -75,7 +74,7 @@ void CComCtrl::UpdateProfile()
 
 	Val = ProfileRSInt(PROFILE_NAME, COM_CTRL_APP, COM_CTRL_SEARCR_BR, 9600);
 	Str.Format(_T("%d"), Val);
-	mSearchBREdit.SetWindowTextW(Str);
+	mUSPSearchBREdit.SetWindowTextW(Str);
 
 // 	Val = ProfileRSInt(PROFILE_NAME, COM_CTRL_APP, COM_CTRL_START_COM, 1);
 // 	Str.Format(_T("%d"), Val);
@@ -83,7 +82,7 @@ void CComCtrl::UpdateProfile()
 
 	Val = ProfileRSInt(PROFILE_NAME, COM_CTRL_APP, COM_CTRL_COMM_BR, 115200);
 	Str.Format(_T("%d"), Val);
-	mCommBREdit.SetWindowTextW(Str);
+	mUSPCommBREdit.SetWindowTextW(Str);
 
 // 	Val = ProfileRSInt(PROFILE_NAME, COM_CTRL_APP, COM_CTRL_SEARCH_FRQ, 200);
 // 	Str.Format(_T("%d"), Val);
@@ -99,66 +98,178 @@ void CComCtrl::UpdateProfile()
 
 void CComCtrl::Stop()
 {
-
-	SLIP_WorkStop();
 	SaveProfile();
-	delete[] DLData;
 }
 
 
 void CComCtrl::SaveProfile()
 {
 	uint32_t Val;
-	if (GetIntFromEdit(&mSearchBREdit, &Val) > 0)
+	if (GetIntFromEdit(&mUSPSearchBREdit, &Val) > 0)
 	{
 		ProfileWSInt(PROFILE_NAME, COM_CTRL_APP, COM_CTRL_SEARCR_BR, Val);
 	}
-	
-// 	if ( GetIntFromEdit(&mComNoEdit, &Val) > 0 )
-// 	{
-// 		ProfileWSInt(PROFILE_NAME, COM_CTRL_APP, COM_CTRL_START_COM, Val);
-// 	}
 	 
-	if (GetIntFromEdit(&mCommBREdit, &Val) > 0)
+	if (GetIntFromEdit(&mUSPCommBREdit, &Val) > 0)
 	{
 		ProfileWSInt(PROFILE_NAME, COM_CTRL_APP, COM_CTRL_COMM_BR, Val);
 	}
 	
-// 	if (GetIntFromEdit(&mComSearchFrqEdit, &Val) > 0)
-// 	{
-// 		ProfileWSInt(PROFILE_NAME, COM_CTRL_APP, COM_CTRL_SEARCH_FRQ, Val);
-// 	}
-// 	
-// 	if (GetIntFromEdit(&mComVarFrqEdit, &Val) > 0)
-// 	{
-// 		ProfileWSInt(PROFILE_NAME, COM_CTRL_APP, COM_CTRL_VAR_FRQ, Val);
-// 	}	
 }
+
+
+//void CComCtrl::OnBnClickedSlipWorkButton()
+//{
+//	// TODO:  在此添加控件通知处理程序代码
+//	uint32_t SearchBR, CommBR;
+//	GetIntFromEdit(&mSearchBREdit, &SearchBR);
+//	GetIntFromEdit(&mCommBREdit, &CommBR);
+//	SLIP_WorkStart(SearchBR, CommBR);
+//}
+
+
+//void CComCtrl::OnBnClickedSlipStopButton()
+//{
+//	// TODO:  在此添加控件通知处理程序代码
+//	SLIP_WorkStop();
+//}
+
+
+void CComCtrl::OnBnClickedComSwitchButton()
+{
+	u32 BR;
+	// TODO:  在此添加控件通知处理程序代码
+	if (WORK_NORMAL_COM == gSys.WorkMode)
+	{
+		MyDeviceStopUartMode();
+	}
+	else
+	{
+		if (mComNoCombox.GetCurSel() && GetIntFromEdit(&mUSPCommBREdit, &BR))
+		{
+			MyDeviceStartUartMode(gSys.ComNoList[mComNoCombox.GetCurSel()], BR);
+		}
+	}
+}
+
 
 BOOL CComCtrl::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-
 	// TODO:  在此添加额外的初始化
-	int i;
-	CString Str;
+	OnDropdownComnoCombo();
+	mComRXEdit.SetLimitText(UINT32_MAX);
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常:  OCX 属性页应返回 FALSE
 }
 
+void CComCtrl::OnComRxMessage(void)
+{
+	uint8_t Buf[DBG_BUF_MAX + 4];
+	uint8_t Buf1[DBG_BUF_MAX + 4];
+	uint16_t Buf2[DBG_BUF_MAX + 4];
+	uint32_t Len;
+	Len = ReadRBuffer(&gSys.UartRxBuf, Buf, DBG_BUF_MAX);
+	mLastByte = ShowReceiveData(Buf, Len, Buf1, Buf2, &mComRXEdit, mLastByte);
 
-void CComCtrl::OnBnClickedSlipWorkButton()
+}
+
+void CComCtrl::OnComStateMessage(void)
+{
+	if (WORK_NORMAL_COM == gSys.WorkMode)
+	{
+		mComSwitchButton.SetWindowTextW(L"关闭串口");
+	}
+	else
+	{
+		mComSwitchButton.SetWindowTextW(L"打开串口");
+	}
+}
+
+void CComCtrl::OnBnClickedUspWorkButton()
 {
 	// TODO:  在此添加控件通知处理程序代码
 	uint32_t SearchBR, CommBR;
-	GetIntFromEdit(&mSearchBREdit, &SearchBR);
-	GetIntFromEdit(&mCommBREdit, &CommBR);
-	SLIP_WorkStart(SearchBR, CommBR);
+	GetIntFromEdit(&mUSPSearchBREdit, &SearchBR);
+	GetIntFromEdit(&mUSPCommBREdit, &CommBR);
+	MyDeviceStartUSPMode(SearchBR, CommBR);
 }
 
 
-void CComCtrl::OnBnClickedSlipStopButton()
+void CComCtrl::OnBnClickedUspStopButton()
 {
 	// TODO:  在此添加控件通知处理程序代码
-	SLIP_WorkStop();
+	MyDeviceStopUSPMode();
+}
+
+
+void CComCtrl::OnBnClickedComTxButton()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	u8 Buf[1024];
+	u32 TxLen;
+	memset(Buf, 0, 1024);
+	TxLen = GetStrFromEdit(&mComTXEdit, Buf, 1024);
+	MyDeviceUartSend(Buf, TxLen);
+}
+
+
+void CComCtrl::OnBnClickedComTxNlButton()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	u8 Buf[1024];
+	u32 TxLen;
+	memset(Buf, 0, 1024);
+	TxLen = GetStrFromEdit(&mComTXEdit, Buf, 1020);
+	Buf[TxLen] = '\r';
+	Buf[TxLen + 1] = '\n';
+	MyDeviceUartSend(Buf, TxLen + 2);
+}
+
+
+void CComCtrl::OnBnClickedComRxSaveButton()
+{
+	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+void CComCtrl::OnDropdownComnoCombo()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	CString str;
+	GetAvailableCom(gSys.ComNoList, 256);
+	mComNoCombox.ResetContent();
+	GetAvailableCom(gSys.ComNoList, MAXCOMNO);
+	for (int i = 0; i < MAXCOMNO; i++)
+	{
+		if (gSys.ComNoList[i])
+		{
+
+			str.Format(_T("COM%d"), gSys.ComNoList[i]);
+			mComNoCombox.InsertString(i, str);
+		}
+		else
+		{
+			break;
+		}
+
+	}
+	mComNoCombox.SetCurSel(0);
+}
+
+
+void CComCtrl::OnSelchangeComnoCombo()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	if (WORK_NORMAL_COM == gSys.WorkMode)
+	{
+		OnBnClickedComSwitchButton();
+	}
+}
+
+
+void CComCtrl::OnBnClickedComClearButton()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	mComRXEdit.SetWindowTextW(L"");
 }

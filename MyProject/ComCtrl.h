@@ -21,18 +21,34 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
 	CString BinFilePath;
+	u8 mLastByte;
 public:
 	uint8_t *DLData;
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	void UpdateProfile();
 	void Stop();
 	void SaveProfile();
+	void OnComRxMessage(void);
+	void OnComStateMessage(void);
+	CEdit mComRXEdit;
+	CButton mComRXSaveButton;
+	CButton mComSwitchButton;
+	CButton mComTXButton;
+	CEdit mComTXEdit;
+	CButton mComTXNewlineButton;
+	afx_msg void OnBnClickedComSwitchButton();
+	CEdit mUSPCommBREdit;
+	CEdit mUSPSearchBREdit;
+	CButton mUSPStopButton;
+	CButton mUSPWorkButton;
 	virtual BOOL OnInitDialog();
-
-	CEdit mCommBREdit;
-	CEdit mSearchBREdit;
-	CButton mStopButton;
-	CButton mWorkButton;
-	afx_msg void OnBnClickedSlipWorkButton();
-	afx_msg void OnBnClickedSlipStopButton();
+	afx_msg void OnBnClickedUspWorkButton();
+	afx_msg void OnBnClickedUspStopButton();
+	afx_msg void OnBnClickedComTxButton();
+	afx_msg void OnBnClickedComTxNlButton();
+	afx_msg void OnBnClickedComRxSaveButton();
+	afx_msg void OnDropdownComnoCombo();
+	afx_msg void OnSelchangeComnoCombo();
+	CComboBox mComNoCombox;
+	CButton mComClearButton;
+	afx_msg void OnBnClickedComClearButton();
 };

@@ -17,5 +17,5 @@ bool TestComPort(uint32_t Port);
 bool SetupCom(volatile HANDLE hCom, uint32_t InBuf, uint32_t OutBuf);
 bool SetComDCB(volatile HANDLE hCom, uint32_t BaudRate, uint32_t ByteSize, uint32_t Parity, uint32_t StopBits);
 
-//uint32_t ReadCom(volatile HANDLE hCom, uint8_t *pBuf, uint32_t BufLen, DWORD *ErrorCode, u32 To);
+uint32_t ReadCom(volatile HANDLE hCom, uint8_t *pBuf, uint32_t BufLen, DWORD *ErrorCode);
 uint32_t WriteCom(volatile HANDLE hCom, unsigned char *pBuf, DWORD BufLen);
