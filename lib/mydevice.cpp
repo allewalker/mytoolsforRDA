@@ -63,7 +63,7 @@ static s32 WaitForEvent(u32 To)
 
 static void MyDeviceAutoMode(void)
 {
-
+	
 }
 
 static DWORD WINAPI MyDeviceThread(LPVOID pData)
@@ -90,7 +90,7 @@ static DWORD WINAPI MyDeviceThread(LPVOID pData)
 			}
 			break;
 		case WORK_USP_AUTO:
-
+			MyDeviceAutoMode();
 			break;
 		case WORK_NORMAL_COM:
 			iRet = WaitForEvent(5);
