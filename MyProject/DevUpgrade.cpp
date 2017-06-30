@@ -139,7 +139,7 @@ bool CDevUpgrade::ReadUpgradeFile()
 		File.Read(&gSys.UpgradeFileBuf.Head, sizeof(File_HeadStruct));
 		gDBG.Trace("%s %d:%08x %d %d %d\r\n", __FUNCTION__, __LINE__, gSys.UpgradeFileBuf.Head.CRC32, gSys.UpgradeFileBuf.Head.BinFileLen, gSys.UpgradeFileBuf.Head.MainVersion,
 			gSys.UpgradeFileBuf.Head.AppVersion);
-		if (dwFileLen != (sizeof(File_HeadStruct)+(gSys.UpgradeFileBuf.Head.BinFileLen * 4096)))
+		if (dwFileLen != (sizeof(File_HeadStruct) + (gSys.UpgradeFileBuf.Head.BinFileLen * 4096)))
 		{
 			gDBG.Trace("%s %d:%d %d\r\n", __FUNCTION__, __LINE__, dwFileLen, sizeof(File_HeadStruct)+(gSys.UpgradeFileBuf.Head.BinFileLen * 4096));
 			AfxMessageBox(L"所选文件长度错误2");

@@ -153,12 +153,16 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(SHUTDOWN_TIME, 1 + 2 * LIST_VAR_COL, L"关机时间");
 	mMyShowList.SetItemText(SOFTWARE_VERSION, 1 + 2 * LIST_VAR_COL, L"软件版本");
 	mMyShowList.SetItemText(MAIN_FREQ, 1 + 2 * LIST_VAR_COL, L"主频");
+	mMyShowList.SetItemText(TRACE_TO, 1 + 2 * LIST_VAR_COL, L"TRACE TO");
+
 	mMyShowList.SetItemText(SYSTEM_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"系统状态");
 	mMyShowList.SetItemText(SIM_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"SIM卡状态");
+	mMyShowList.SetItemText(SMS_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"SMS状态");
 	mMyShowList.SetItemText(REG_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"注册状态");
 	mMyShowList.SetItemText(GPRS_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"GPRS状态");
 	mMyShowList.SetItemText(GPRS_ATTACH_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"GPRS附着");
 	mMyShowList.SetItemText(GPRS_ACT_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"GPRS激活");
+	mMyShowList.SetItemText(MONITOR_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"监控运行");
 	mMyShowList.SetItemText(RSSI_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"信号");
 	mMyShowList.SetItemText(GPS_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"GPS状态");
 	mMyShowList.SetItemText(ALARM_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"防盗状态");
@@ -167,7 +171,13 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(CUTLINE_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"剪线");
 	mMyShowList.SetItemText(OVERSPEED_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"超速");
 	mMyShowList.SetItemText(PRINT_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"打印模式");
-	mMyShowList.SetItemText(FIRST_LOCAT_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"首次定位");
+	mMyShowList.SetItemText(TRACE_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"TRACE状态");
+	mMyShowList.SetItemText(WDG_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"WDG VAL");
+	mMyShowList.SetItemText(LED_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"绿灯");
+	mMyShowList.SetItemText(LED_STATE + 1 + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"红灯");
+	mMyShowList.SetItemText(REBOOT_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"重启");
+
+
 	mMyShowList.SetItemText(SIM_ERROR + VAR_MAX + STATE_MAX, 1 + 2 * LIST_VAR_COL, L"SIM卡故障");
 	mMyShowList.SetItemText(GPRS_ERROR + VAR_MAX + STATE_MAX, 1 + 2 * LIST_VAR_COL, L"GPRS故障");
 	mMyShowList.SetItemText(GPS_ERROR + VAR_MAX + STATE_MAX, 1 + 2 * LIST_VAR_COL, L"GPS故障");
@@ -212,6 +222,7 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(PARAM_GPS_KEEP_TO, 1 + 2 * LIST_GPS_PARAM_COL, L"唤醒保持时间");
 	mMyShowList.SetItemText(PARAM_GPS_SLEEP_TO, 1 + 2 * LIST_GPS_PARAM_COL, L"唤醒周期");
 	mMyShowList.SetItemText(PARAM_AGPS_EN, 1 + 2 * LIST_GPS_PARAM_COL, L"启用AGPS");
+	mMyShowList.SetItemText(PARAM_GPS_ONLY_ONCE, 1 + 2 * LIST_GPS_PARAM_COL, L"只定位一次");
 
 	mMyShowList.SetItemText(PARAM_GS_WAKEUP_MONITOR, 1 + 2 * LIST_MONITOR_PARAM_COL, L"GS唤醒");
 	mMyShowList.SetItemText(PARAM_GS_JUDGE_RUN, 1 + 2 * LIST_MONITOR_PARAM_COL, L"GS判断行车");
@@ -551,15 +562,13 @@ LRESULT CMyProjectDlg::OnUpdateParamMessage(WPARAM wParam, LPARAM lParam)
 {
 	int i;
 	CString Str;
-
-
 	return 0;
 }
 
 LRESULT CMyProjectDlg::OnUpdateVersionMessage(WPARAM wParam, LPARAM lParam)
 {
 	int i;
-
+	gDBG.Trace("主版本:%08x\r\n", gSys.DevData.MainVersion);
 	return 0;
 }
 

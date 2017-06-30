@@ -317,7 +317,7 @@ typedef struct
 	u32 ID;
 	u32 Param1;
 	u32 Param2;
-	void *pData;
+	u8 *pData;
 }OperationReq_Struct;
 
 enum EVENTENUM
@@ -337,6 +337,7 @@ enum EVENTENUM
 enum OPERATIONREQENUM
 {
 	REQ_RESET,
+	REQ_SET_UID,
 	REQ_SET_PARAM,
 	REQ_UPGRADE,
 };
@@ -359,16 +360,18 @@ typedef struct
 	RMC_InfoStruct RMCInfo;
 	GSV_InfoStruct GSVInfoSave;
 	Param_Byte64Struct nParam[PARAM_TYPE_MAX];
+	u32 MainVersion;
 }GDTM_DataStruct;
 
 typedef struct  
 {
 	u32 ComNo;
-	HANDLE hCom;
+	volatile HANDLE hCom;
 	u32 SearchBR;
 	u32 CommBR;
 	u8 Mode;
 	u8 IsWork;
+	u8 ErrorFlag;
 }Com_CtrlStruct;
 
 typedef struct
@@ -380,7 +383,7 @@ typedef struct
 	HWND mMainWnd;
 	u32 ComNoList[MAXCOMNO];
 	RBuffer OperationList;
-	OperationReq_Struct OperationData[128];
+	OperationReq_Struct OperationData[8];
 	Upgrade_FileStruct UpgradeFileBuf;
 	u32 CRC32Table[256];
 	RBuffer UartTxBuf;
@@ -396,7 +399,7 @@ void MyDeviceSetWnd(HWND);
 void MyDeviceQuit(void);
 void MyDeviceStopUSPMode(void);
 void MyDeviceStartUSPMode(u32 SearchBR, u32 CommBR);
-void MyDeviceOperationReq(u32 ID, u32 Param1, u32 Param2, void *pData);
+void MyDeviceOperationReq(u32 ID, u32 Param1, u32 Param2, u8 *pData);
 void MyDeviceStopUartMode(void);
 void MyDeviceStartUartMode(u32 ComNo, u32 BR);
 void MyDeviceUartSend(u8 *Data, u32 Len);
