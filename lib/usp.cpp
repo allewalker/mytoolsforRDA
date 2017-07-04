@@ -11,7 +11,7 @@ void USP_SetHead(USP_AnalyzeStruct *USP, u16 Cmd, u8 Qos)
 	Head.DataSize = USP->OutLen;
 	if (Head.DataSize)
 	{
-		Head.CRC16 = ~CRC16Cal(USP->OutBuf + sizeof(USP_HeadStruct), Head.DataSize, CRC16_START, CRC16_GEN);
+		Head.CRC16 = ~CRC16Cal(USP->OutBuf + sizeof(USP_HeadStruct), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0);
 	}
 	else
 	{

@@ -148,7 +148,7 @@ enum
 	PARAM_TYPE_ALARM2,
 	PARAM_TYPE_APN,
 	PARAM_TYPE_LOCAT,
-	PARAM_TYPE_UPDATE,
+	PARAM_TYPE_UPGRADE,
 	PARAM_TYPE_NUMBER,
 	PARAM_TYPE_USER,
 	PARAM_TYPE_MAX,
@@ -191,10 +191,11 @@ typedef struct
 typedef struct
 {
 	u32 UID[3];
-	s8 MainURL[URL_LEN_MAX - 8];
 	u32 MainIP;
 	u16 TCPPort;	//如果为0，表示使用UDP
 	u16 UDPPort;	//如果为0，表示使用TCP
+	u16 CustCode;
+	s8 MainURL[URL_LEN_MAX - 10];
 }Param_MainStruct;
 
 typedef struct
@@ -229,18 +230,18 @@ typedef struct
 typedef struct
 {
 
-	u32 UpdateIP;
-	s8 UpdateURL[URL_LEN_MAX];
+	u32 UpgradeIP;
+	s8 UpgradeURL[URL_LEN_MAX];
 	u16 TCPPort;	//如果为0，表示使用UDP
 	u16 UDPPort;	//如果为0，表示使用TCP
-}Param_UpdateStruct;
+}Param_UpgradeStruct;
 
 typedef union
 {
 	Param_FtpStruct Ftp;
-	Param_UpdateStruct Update;
+	Param_UpgradeStruct Upgrade;
 	u8 pad[60];
-}Param_UpdateUnion;
+}Param_UpgradeUnion;
 
 typedef struct
 {
@@ -275,7 +276,7 @@ typedef union
 {
 	Param_MainStruct MainInfo;
 	Param_APNStruct APN;
-	Param_UpdateUnion Update;
+	Param_UpgradeUnion UpgradeInfo;
 	Param_DWStruct ParamDW;
 	Param_UserStruct UserInfo;
 	Param_NumberStruct Number;

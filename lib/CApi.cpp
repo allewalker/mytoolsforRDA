@@ -223,30 +223,66 @@ u8 XorCheck(u8 *Data, u32 Len, u8 CheckStart)
 /************************************************************************/
 /*  CRC16ºÍCRC32¼ìÑé                                                                    */
 /************************************************************************/
-uint16_t CRC16Cal(uint8_t *Src, uint16_t Len, uint16_t CRC16Last, uint16_t CRCRoot)
+uint16_t CRC16Cal(uint8_t *Src, uint16_t Len, uint16_t CRC16Last, uint16_t CRCRoot, u8 IsReverse)
 {
-	uint8_t i;
+	uint16_t i;
 	uint16_t CRC16 = CRC16Last;
+	uint16_t wTemp = CRCRoot;
 
-	while (Len--)
+
+	if (IsReverse)
 	{
-		for (i = 0x80; i != 0; i >>= 1)
+		CRCRoot = 0;
+		for (i = 0; i < 16; i++)
 		{
-			if ((CRC16 & 0x8000) != 0)
+			if (wTemp & (1 << (15 - i)))
 			{
-				CRC16 <<= 1;
-				CRC16 ^= CRCRoot;
-			}
-			else
-			{
-				CRC16 <<= 1;
-			}
-			if ((*Src&i) != 0)
-			{
-				CRC16 ^= CRCRoot;
+				CRCRoot |= 1 << i;
 			}
 		}
-		Src++;
+		while (Len--)
+		{
+			for (i = 0; i < 8; i++)
+			{
+				if ((CRC16 & 0x0001) != 0)
+				{
+					CRC16 >>= 1;
+					CRC16 ^= CRCRoot;
+				}
+				else
+				{
+					CRC16 >>= 1;
+				}
+				if ((*Src&(1 << i)) != 0)
+				{
+					CRC16 ^= CRCRoot;
+				}
+			}
+			Src++;
+		}
+	}
+	else
+	{
+		while (Len--)
+		{
+			for (i = 8; i > 0; i--)
+			{
+				if ((CRC16 & 0x8000) != 0)
+				{
+					CRC16 <<= 1;
+					CRC16 ^= CRCRoot;
+				}
+				else
+				{
+					CRC16 <<= 1;
+				}
+				if ((*Src&(1 << (i - 1))) != 0)
+				{
+					CRC16 ^= CRCRoot;
+				}
+			}
+			Src++;
+		}
 	}
 
 	return CRC16;

@@ -17,7 +17,8 @@ typedef long long					u64;
 #define IsAlphaDigit(c)    (IsAlpha(c) || IsDigit(c))
 #define IsHexDigit(c)    (IsHex(c) || IsDigit(c))
 #define CRC32_GEN		(0x04C11DB7)
-#define CRC16_GEN		(0x1021)
+#define CRC16_CCITT_GEN		(0x1021)
+#define CRC16_GEN		(0x8005)
 #define CRC32_START		(0xffffffff)
 #define CRC16_START		(0xffff)
 
@@ -96,7 +97,7 @@ uint32_t AsciiToHex(uint8_t *Src, uint32_t len, uint8_t *Dst);
 uint32_t HexToAscii(uint8_t *Src, uint32_t Len, uint8_t *Dst);
 uint32_t StrToUint(const uint8_t *Src);
 u8 XorCheck(u8 *Data, u32 Len, u8 CheckStart);
-uint16_t CRC16Cal(uint8_t *Src, uint16_t Len, uint16_t CRC16Last, uint16_t CRCRoot);
+uint16_t CRC16Cal(uint8_t *Src, uint16_t Len, uint16_t CRC16Last, uint16_t CRCRoot, u8 IsReverse);
 void CRC32_CreateTable(uint32_t *Tab, uint32_t Gen);
 uint32_t CRC32_Cal(uint32_t * CRC32_Table, uint8_t *Buf, uint32_t Size, uint32_t CRC32Last);
 u32 ReadRBuffer(RBuffer *Buf, u8 *Data, u32 Len);

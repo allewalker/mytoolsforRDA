@@ -24,6 +24,7 @@ enum
 	LIST_ALARM1_PARAM_COL,
 	LIST_ALARM2_PARAM_COL,
 	LIST_OTHER_PARAM_COL,
+	LIST_COL_MAX,
 
 	GPS_INFO_UTC_DATE_RAW = 0,
 	GPS_INFO_UTC_TIME_RAW,
@@ -41,8 +42,10 @@ enum
 	MAIN_PARAM_URL_RAW,
 	MAIN_PARAM_TCP_PORT_RAW,
 	MAIN_PARAM_UDP_PORT_RAW,
+	MAIN_PARAM_USER_CODE_RAW,
 
-	APN_NAME_RAW = 0,
+	MAIN_VERSION_RAW = 0,
+	APN_NAME_RAW,
 	APN_USER_RAW,
 	APN_PWD_RAW,
 	IMEI_RAW,
@@ -171,6 +174,7 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(CUTLINE_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"剪线");
 	mMyShowList.SetItemText(OVERSPEED_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"超速");
 	mMyShowList.SetItemText(PRINT_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"打印模式");
+	mMyShowList.SetItemText(FIRST_LOCAT_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"首次定位");
 	mMyShowList.SetItemText(TRACE_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"TRACE状态");
 	mMyShowList.SetItemText(WDG_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"WDG VAL");
 	mMyShowList.SetItemText(LED_STATE + VAR_MAX, 1 + 2 * LIST_VAR_COL, L"绿灯");
@@ -184,6 +188,7 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(ANT_SHORT_ERROR + VAR_MAX + STATE_MAX, 1 + 2 * LIST_VAR_COL, L"天线短路");
 	mMyShowList.SetItemText(ANT_BREAK_ERROR + VAR_MAX + STATE_MAX, 1 + 2 * LIST_VAR_COL, L"天线断路");
 	mMyShowList.SetItemText(SENSOR_ERROR + VAR_MAX + STATE_MAX, 1 + 2 * LIST_VAR_COL, L"GS故障");
+	mMyShowList.SetItemText(LOW_POWER_ERROR + VAR_MAX + STATE_MAX, 1 + 2 * LIST_VAR_COL, L"低电故障");
 
 	mMyShowList.SetItemText(GPS_INFO_UTC_DATE_RAW, 1 + 2 * LIST_GPS_INFO_COL, L"GPS日期");
 	mMyShowList.SetItemText(GPS_INFO_UTC_TIME_RAW, 1 + 2 * LIST_GPS_INFO_COL, L"GPS时间");
@@ -202,6 +207,7 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(MAIN_PARAM_URL_RAW, 1 + 2 * LIST_MAIN_PARAM_COL, L"主域名");
 	mMyShowList.SetItemText(MAIN_PARAM_TCP_PORT_RAW, 1 + 2 * LIST_MAIN_PARAM_COL, L"TCP端口");
 	mMyShowList.SetItemText(MAIN_PARAM_UDP_PORT_RAW, 1 + 2 * LIST_MAIN_PARAM_COL, L"UDP端口");
+	mMyShowList.SetItemText(MAIN_PARAM_USER_CODE_RAW, 1 + 2 * LIST_MAIN_PARAM_COL, L"用户代号");
 
 	mMyShowList.SetItemText(PARAM_DETECT_PERIOD, 1 + 2 * LIST_SYS_PARAM_COL, L"检测周期");
 	mMyShowList.SetItemText(PARAM_SENSOR_EN, 1 + 2 * LIST_SYS_PARAM_COL, L"检测使能");
@@ -259,6 +265,8 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(PARAM_OVERSPEED_ALARM_DELAY, 1 + 2 * LIST_ALARM2_PARAM_COL, L"超速报警延迟");
 	mMyShowList.SetItemText(PARAM_ALARM_ENABLE, 1 + 2 * LIST_ALARM2_PARAM_COL, L"报警使能");
 
+	mMyShowList.SetItemText(MAIN_VERSION_RAW, 1 + 2 * LIST_OTHER_PARAM_COL, L"核心版本");
+
 	mMyShowList.SetItemText(APN_NAME_RAW, 1 + 2 * LIST_OTHER_PARAM_COL, L"APN名字");
 	mMyShowList.SetItemText(APN_USER_RAW, 1 + 2 * LIST_OTHER_PARAM_COL, L"APN用户名");
 	mMyShowList.SetItemText(APN_PWD_RAW, 1 + 2 * LIST_OTHER_PARAM_COL, L"APN密码");
@@ -273,10 +281,13 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(CAR_OWN0_RAW + 3, 1 + 2 * LIST_OTHER_PARAM_COL, L"车主号码4");
 	mMyShowList.SetItemText(CAR_OWN0_RAW + 4, 1 + 2 * LIST_OTHER_PARAM_COL, L"车主号码5");
 	mMyShowList.SetItemText(CAR_OWN0_RAW + 5, 1 + 2 * LIST_OTHER_PARAM_COL, L"车主号码6");
-
+	mMyShowList.SetItemText(CAR_OWN0_RAW + 6, 1 + 2 * LIST_OTHER_PARAM_COL, L"车主号码7");
 	
 	Reset();
 
+// 	u8 Data[] = { 0x11, 0x01, 0x07, 0x52, 0x53, 0x36, 0x78, 0x90, 0x02, 0x42, 0x70, 0x00, 0x32, 0x01, 0x00, 0x05 };
+// 	u16 crc16 = ~CRC16Cal(Data, sizeof(Data), CRC16_START, CRC16_CCITT_GEN, 1);
+// 	gDBG.Trace("%08x", crc16);
 // 	AES_CtrlStruct AES;
 // 	u8 Key[16] = { 32, 87, 47, 82, 54, 75, 63, 71, 48, 80, 65, 88, 17, 99, 45, 43 };
 // 	u8 Temp1[16] = { 0x06, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -401,7 +412,6 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 {
 	int i;
 	CString Str;
-	IP_AddrUnion uIP;
 	IO_ValueUnion uIO;
 	Date_Union uDate;
 	Time_Union uTime;
@@ -562,13 +572,172 @@ LRESULT CMyProjectDlg::OnUpdateParamMessage(WPARAM wParam, LPARAM lParam)
 {
 	int i;
 	CString Str;
+	IP_AddrUnion uIP;
+	wchar_t wbuf[URL_LEN_MAX];
+	u8 PhoneBCD[7];
+	for (i = 0; i < 3; i++)
+	{
+		if (gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[i] != ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[i])
+		{
+			ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[i] = gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[i];
+			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[i]);
+			mMyShowList.SetItemText(i + MAIN_PARAM_UID0_RAW, 2 + 2 * LIST_MAIN_PARAM_COL, Str);
+		}
+	}
+
+	if (gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainIP != ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainIP)
+	{
+		ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainIP = gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainIP;
+		uIP.u32_addr = ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainIP;
+		Str.Format(_T("%d.%d.%d.%d"), uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3]);
+		mMyShowList.SetItemText(MAIN_PARAM_IP_RAW, 2 + 2 * LIST_MAIN_PARAM_COL, Str);
+	}
+
+	if (memcmp(gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainURL, ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainURL, sizeof(ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainURL)))
+	{
+		memcpy(ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainURL, gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainURL, sizeof(ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainURL));
+		MultiByteToWideChar(CP_ACP, 0, (char *)ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainURL, strlen(ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainURL) + 1, wbuf, strlen(ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainURL) + 1);
+		Str.Format(_T("%s"), wbuf);
+		mMyShowList.SetItemText(MAIN_PARAM_URL_RAW, 2 + 2 * LIST_MAIN_PARAM_COL, Str);
+	}
+
+	if (gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.TCPPort != ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.TCPPort)
+	{
+		ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.TCPPort = gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.TCPPort;
+		Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.TCPPort);
+		mMyShowList.SetItemText(MAIN_PARAM_TCP_PORT_RAW, 2 + 2 * LIST_MAIN_PARAM_COL, Str);
+	}
+
+	if (gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UDPPort != ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UDPPort)
+	{
+		ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UDPPort = gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UDPPort;
+		Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UDPPort);
+		mMyShowList.SetItemText(MAIN_PARAM_UDP_PORT_RAW, 2 + 2 * LIST_MAIN_PARAM_COL, Str);
+	}
+
+	if (gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.CustCode != ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.CustCode)
+	{
+		ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.CustCode = gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.CustCode;
+		Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.CustCode);
+		mMyShowList.SetItemText(MAIN_PARAM_USER_CODE_RAW, 2 + 2 * LIST_MAIN_PARAM_COL, Str);
+	}
+
+	for (i = 0; i < PARAM_SYS_MAX; i++)
+	{
+		if (gSys.DevData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i])
+		{
+			ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i];
+			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i]);
+			mMyShowList.SetItemText(i, 2 + 2 * LIST_SYS_PARAM_COL, Str);
+		}
+	}
+
+	for (i = 0; i < PARAM_SYS_MAX; i++)
+	{
+		if (gSys.DevData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i])
+		{
+			ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i];
+			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i]);
+			mMyShowList.SetItemText(i, 2 + 2 * LIST_SYS_PARAM_COL, Str);
+		}
+	}
+
+	for (i = 0; i < PARAM_GPS_MAX; i++)
+	{
+		if (gSys.DevData.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param[i])
+		{
+			ShowData.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param[i];
+			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param[i]);
+			mMyShowList.SetItemText(i, 2 + 2 * LIST_GPS_PARAM_COL, Str);
+		}
+	}
+
+	for (i = 0; i < PARAM_MONITOR_MAX; i++)
+	{
+		if (gSys.DevData.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[i])
+		{
+			ShowData.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[i];
+			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[i]);
+			mMyShowList.SetItemText(i, 2 + 2 * LIST_MONITOR_PARAM_COL, Str);
+		}
+	}
+
+	for (i = 0; i < PARAM_ALARM1_MAX; i++)
+	{
+		if (gSys.DevData.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param[i])
+		{
+			ShowData.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param[i];
+			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param[i]);
+			mMyShowList.SetItemText(i, 2 + 2 * LIST_ALARM1_PARAM_COL, Str);
+		}
+	}
+
+	for (i = 0; i < PARAM_ALARM2_MAX; i++)
+	{
+		if (gSys.DevData.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[i])
+		{
+			ShowData.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[i];
+			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[i]);
+			mMyShowList.SetItemText(i, 2 + 2 * LIST_ALARM2_PARAM_COL, Str);
+		}
+	}
+
+	if (memcmp(gSys.DevData.nParam[PARAM_TYPE_APN].Data.APN.APNName, ShowData.nParam[PARAM_TYPE_MAIN].Data.APN.APNName, sizeof(ShowData.nParam[PARAM_TYPE_MAIN].Data.APN.APNName)))
+	{
+		memcpy(ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNName, gSys.DevData.nParam[PARAM_TYPE_APN].Data.APN.APNName, sizeof(ShowData.nParam[PARAM_TYPE_MAIN].Data.APN.APNName));
+		MultiByteToWideChar(CP_ACP, 0, (char *)ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNName, strlen(ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNName) + 1, wbuf, strlen(ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNName) + 1);
+		Str.Format(_T("%s"), wbuf);
+		mMyShowList.SetItemText(APN_NAME_RAW, 2 + 2 * LIST_OTHER_PARAM_COL, Str);
+	}
+
+	if (memcmp(gSys.DevData.nParam[PARAM_TYPE_APN].Data.APN.APNUser, ShowData.nParam[PARAM_TYPE_MAIN].Data.APN.APNUser, sizeof(ShowData.nParam[PARAM_TYPE_MAIN].Data.APN.APNName)))
+	{
+		memcpy(ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNUser, gSys.DevData.nParam[PARAM_TYPE_APN].Data.APN.APNUser, sizeof(ShowData.nParam[PARAM_TYPE_MAIN].Data.APN.APNName));
+		MultiByteToWideChar(CP_ACP, 0, (char *)ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNUser, strlen(ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNUser) + 1, wbuf, strlen(ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNUser) + 1);
+		Str.Format(_T("%s"), wbuf);
+		mMyShowList.SetItemText(APN_USER_RAW, 2 + 2 * LIST_OTHER_PARAM_COL, Str);
+	}
+
+	if (memcmp(gSys.DevData.nParam[PARAM_TYPE_APN].Data.APN.APNPassword, ShowData.nParam[PARAM_TYPE_MAIN].Data.APN.APNPassword, sizeof(ShowData.nParam[PARAM_TYPE_MAIN].Data.APN.APNName)))
+	{
+		memcpy(ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNPassword, gSys.DevData.nParam[PARAM_TYPE_APN].Data.APN.APNPassword, sizeof(ShowData.nParam[PARAM_TYPE_MAIN].Data.APN.APNName));
+		MultiByteToWideChar(CP_ACP, 0, (char *)ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNPassword, strlen(ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNPassword) + 1, wbuf, strlen(ShowData.nParam[PARAM_TYPE_APN].Data.APN.APNPassword) + 1);
+		Str.Format(_T("%s"), wbuf);
+		mMyShowList.SetItemText(APN_PWD_RAW, 2 + 2 * LIST_OTHER_PARAM_COL, Str);
+	}
+
+	for (i = 0; i < 7; i++)
+	{
+		if (memcmp(gSys.DevData.nParam[PARAM_TYPE_NUMBER].Data.Number.Phone[i].Num, ShowData.nParam[PARAM_TYPE_NUMBER].Data.Number.Phone[i].Num, sizeof(ShowData.nParam[PARAM_TYPE_NUMBER].Data.Number.Phone[i].Num)))
+		{
+			memcpy(ShowData.nParam[PARAM_TYPE_NUMBER].Data.Number.Phone[i].Num, gSys.DevData.nParam[PARAM_TYPE_NUMBER].Data.Number.Phone[i].Num, sizeof(ShowData.nParam[PARAM_TYPE_NUMBER].Data.Number.Phone[i].Num));
+			if (ShowData.nParam[PARAM_TYPE_NUMBER].Data.Number.Phone[i].Num[0] <= 12)
+			{
+				memcpy(PhoneBCD, ShowData.nParam[PARAM_TYPE_NUMBER].Data.Number.Phone[i].Num + 1, 6);
+				PhoneBCD[5] >>= 4;
+				Str.Format(_T("%02d%02d%02d%02d%02d%01d"), PhoneBCD[0], PhoneBCD[1], PhoneBCD[2], PhoneBCD[3], PhoneBCD[4], PhoneBCD[5]);
+				mMyShowList.SetItemText(CAR_OWN0_RAW + i, 2 + 2 * LIST_OTHER_PARAM_COL, Str);
+			}
+			else
+			{
+				memcpy(PhoneBCD, ShowData.nParam[PARAM_TYPE_NUMBER].Data.Number.Phone[i].Num + 1, 7);
+				PhoneBCD[6] >>= 4;
+				Str.Format(_T("%02d%02d%02d%02d%02d%02d%01d"), PhoneBCD[0], PhoneBCD[1], PhoneBCD[2], PhoneBCD[3], PhoneBCD[4], PhoneBCD[5], PhoneBCD[6]);
+				mMyShowList.SetItemText(CAR_OWN0_RAW + i, 2 + 2 * LIST_OTHER_PARAM_COL, Str);
+			}
+		}
+	}
+
 	return 0;
 }
 
 LRESULT CMyProjectDlg::OnUpdateVersionMessage(WPARAM wParam, LPARAM lParam)
 {
 	int i;
-	gDBG.Trace("主版本:%08x\r\n", gSys.DevData.MainVersion);
+	CString Str;
+	ShowData.MainVersion = gSys.DevData.MainVersion;
+	Str.Format(_T("%04x"), ShowData.MainVersion);
+	mMyShowList.SetItemText(MAIN_VERSION_RAW, 2 + 2 * LIST_OTHER_PARAM_COL, Str);
 	return 0;
 }
 
@@ -590,13 +759,14 @@ void CMyProjectDlg::Reset()
 
 	for (i = 0; i < 100; i++)
 	{
-		for (j = 0; j < 8; j++)
+		for (j = 0; j < LIST_COL_MAX; j++)
 		{
 			mMyShowList.SetItemText(i, j * 2 + 2, L"");
 		}
 		mMyShowList.SetItemText(i, 1 + 2 * LIST_GPS_COL, L"");
 		mMyShowList.SetItemText(i, 1 + 2 * LIST_BD_COL, L"");
 	}
+	memset((u8 *)&ShowData, 0xff, sizeof(ShowData));
 }
 
 void CMyProjectDlg::OnUpgradeCtrl()

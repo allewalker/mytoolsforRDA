@@ -21,8 +21,7 @@
 #define WM_CORE_UPDATE_DL			(WM_MY_MESSAGE + 5)
 #define WM_COM_RX					(WM_MY_MESSAGE + 6)
 #define WM_COM_STATE				(WM_MY_MESSAGE + 7)
-#define CRC16START 0xffff
-#define CRC16ROOT 0x1021
+
 
 #define MAXCOMNO 256  //×î´óCOMºÅ256
 //#define RTCEN

@@ -201,9 +201,9 @@ USP_RX:
 		memcpy(&Head, RxBuf, sizeof(Head));
 		if (Head.DataSize)
 		{
-			if (Head.CRC16 != (u16)~CRC16Cal(RxBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_GEN))
+			if (Head.CRC16 != (u16)~CRC16Cal(RxBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0))
 			{
-				gDBG.Trace("%s %d:%d crc %04x %04x\r\n", __FUNCTION__, __LINE__, Head.Cmd, Head.CRC16, (u16)~CRC16Cal(RxBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_GEN));
+				gDBG.Trace("%s %d:%d crc %04x %04x\r\n", __FUNCTION__, __LINE__, Head.Cmd, Head.CRC16, (u16)~CRC16Cal(RxBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0));
 				return -1;
 			}
 			DataStart = &RxBuf[sizeof(Head)];
@@ -462,17 +462,20 @@ static void MyDeviceAutoMode(void)
 			{
 				continue;
 			}
-			MyDeviceUSPProc(USP_CMD_SET_BR, NULL, 0, gSys.ComCtrl.CommBR, 10);
-			
-			CloseHandle(gSys.ComCtrl.hCom);
-			gSys.ComCtrl.hCom = NULL;
-			gDBG.Trace("%s %d:%d\r\n", __FUNCTION__, __LINE__, gSys.ComCtrl.CommBR);
-			gSys.ComCtrl.hCom = OpenComPort(gSys.ComNoList[i], gSys.ComCtrl.CommBR);
-			if (!gSys.ComCtrl.hCom)
+			if (gSys.ComCtrl.SearchBR != gSys.ComCtrl.CommBR)
 			{
-				continue;
+				MyDeviceUSPProc(USP_CMD_SET_BR, NULL, 0, gSys.ComCtrl.CommBR, 10);
+				CloseHandle(gSys.ComCtrl.hCom);
+				gSys.ComCtrl.hCom = NULL;
+				gDBG.Trace("%s %d:%d\r\n", __FUNCTION__, __LINE__, gSys.ComCtrl.CommBR);
+				gSys.ComCtrl.hCom = OpenComPort(gSys.ComNoList[i], gSys.ComCtrl.CommBR);
+				if (!gSys.ComCtrl.hCom)
+				{
+					continue;
+				}
+				WaitForSleep(100);
 			}
-			WaitForSleep(100);
+			
 			gSys.ComCtrl.ErrorFlag = 0;
 			Result = MyDeviceUSPProc(USP_CMD_READ_VERSION, NULL, 0, 0, USP_COM_TO);
 			if (Result != USP_CMD_UPLOAD_VERSION)
@@ -498,6 +501,7 @@ static void MyDeviceAutoMode(void)
 				continue;
 			}
 			PostMessage(gSys.mMainWnd, WM_CORE_UPDATE_VAR, WPARAM(0), LPARAM(0));
+			PostMessage(gSys.mMainWnd, WM_CORE_UPDATE_VERSION, WPARAM(0), LPARAM(0));
 			PostMessage(gSys.mMainWnd, WM_CORE_UPDATE_PARAM, WPARAM(0), LPARAM(0));
 			gDBG.Trace("%s %d:COM%d connect\r\n", __FUNCTION__, __LINE__, gSys.ComNoList[i]);
 		}
@@ -508,6 +512,7 @@ ERROR_OUT:
 	if (gSys.ComCtrl.hCom)
 	{
 		CloseHandle(gSys.ComCtrl.hCom);
+		gSys.ComCtrl.hCom = NULL;
 		InitRBuffer(&gSys.OperationList, (u8 *)gSys.OperationData, 8, sizeof(OperationReq_Struct));
 	}
 }
@@ -537,7 +542,7 @@ static DWORD WINAPI MyDeviceThread(LPVOID pData)
 			break;
 		case WORK_USP_AUTO:
 			MyDeviceAutoMode();
-			iRet = WaitForEvent(100);
+			iRet = WaitForEvent(50);
 			switch (iRet)
 			{
 			case EVENT_THREAD_STOP:
