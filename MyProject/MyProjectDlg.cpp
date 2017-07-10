@@ -145,6 +145,7 @@ BOOL CMyProjectDlg::OnInitDialog()
 	}
 	mMyShowList.SetItemText(SYS_TIME, 1 + 2 * LIST_VAR_COL, L"运行时间");
 	mMyShowList.SetItemText(VBAT, 1 + 2 * LIST_VAR_COL, L"电压");
+	mMyShowList.SetItemText(ADC0_VAL, 1 + 2 * LIST_VAR_COL, L"ADC0");
 	mMyShowList.SetItemText(UTC_DATE, 1 + 2 * LIST_VAR_COL, L"UTC日期");
 	mMyShowList.SetItemText(UTC_TIME, 1 + 2 * LIST_VAR_COL, L"UTC时间");
 	mMyShowList.SetItemText(IO_VAL, 1 + 2 * LIST_VAR_COL, L"VACC");
