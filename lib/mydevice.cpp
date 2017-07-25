@@ -3,7 +3,7 @@
 #include "PrintMsg.h"
 #include "usp.h"
 SysVar_Struct gSys;
-#define USP_COM_TO (50)
+#define USP_COM_TO (200)
 
 static void MyDeviceChangeWorkMode(void)
 {
@@ -22,7 +22,7 @@ static void MyDeviceChangeWorkMode(void)
 	{
 		if (gSys.ComCtrl.ComNo)
 		{
-			gDBG.Trace("%s %d:entry normal com mode %d %d!\r\n", __FUNCTION__, __LINE__, gSys.ComCtrl.ComNo, gSys.ComCtrl.CommBR);
+			gDBG.Trace("%s %u:entry normal com mode %u %u!\r\n", __FUNCTION__, __LINE__, gSys.ComCtrl.ComNo, gSys.ComCtrl.CommBR);
 			gSys.ComCtrl.hCom = OpenComPort(gSys.ComCtrl.ComNo, gSys.ComCtrl.CommBR);
 			if (gSys.ComCtrl.hCom)
 			{
@@ -32,7 +32,7 @@ static void MyDeviceChangeWorkMode(void)
 		}
 		else
 		{
-			gDBG.Trace("%s %d:entry USP mode!\r\n", __FUNCTION__, __LINE__);
+			gDBG.Trace("%s %u:entry USP mode!\r\n", __FUNCTION__, __LINE__);
 			gSys.WorkMode = WORK_USP_AUTO;
 			PostMessage(gSys.mMainWnd, WM_COM_STATE, WPARAM(0), LPARAM(0));
 		}
@@ -51,7 +51,7 @@ static s32 WaitForEvent(u32 To)
 		return -1;
 	default:
 		EventID = Result - WAIT_OBJECT_0;
-		gDBG.Trace("%s %d:Event ID %d\r\n", __FUNCTION__, __LINE__, EventID);
+		gDBG.Trace("%s %u:Event ID %u\r\n", __FUNCTION__, __LINE__, EventID);
 		ResetEvent(gSys.Event[EventID]);
 		if (EventID == EVENT_THREAD_STOP)
 		{
@@ -90,7 +90,7 @@ static s32 MyDeviceUSPRx(u8 *Buf, u32 BufLen, u32 To)
 		{
 			if (Error)
 			{
-				gDBG.Trace("%s %d:%d\r\n", __FUNCTION__, __LINE__, Error);
+				gDBG.Trace("%s %u:%u\r\n", __FUNCTION__, __LINE__, Error);
 				gSys.ComCtrl.ErrorFlag = 1;
 				return -Error;
 			}
@@ -121,7 +121,7 @@ static s32 MyDeviceUSPRx(u8 *Buf, u32 BufLen, u32 To)
 							}
 							else
 							{
-								gDBG.Trace("%s %d:%d\r\n", __FUNCTION__, __LINE__, Head.DataSize);
+								gDBG.Trace("%s %u:%u\r\n", __FUNCTION__, __LINE__, Head.DataSize);
 								return -1;
 							}
 
@@ -203,7 +203,7 @@ USP_RX:
 		{
 			if (Head.CRC16 != (u16)~CRC16Cal(RxBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0))
 			{
-				gDBG.Trace("%s %d:%d crc %04x %04x\r\n", __FUNCTION__, __LINE__, Head.Cmd, Head.CRC16, (u16)~CRC16Cal(RxBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0));
+				gDBG.Trace("%s %u:%u crc %04x %04x\r\n", __FUNCTION__, __LINE__, Head.Cmd, Head.CRC16, (u16)~CRC16Cal(RxBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0));
 				return -1;
 			}
 			DataStart = &RxBuf[sizeof(Head)];
@@ -215,12 +215,12 @@ USP_RX:
 				memcpy(&LastResult, DataStart + 2, 2);
 				if (LastCmd != Cmd)
 				{
-					gDBG.Trace("%s %d:Tx %d Rx %d\r\n", __FUNCTION__, __LINE__, Cmd, LastCmd);
+					gDBG.Trace("%s %u:Tx %u Rx %u\r\n", __FUNCTION__, __LINE__, Cmd, LastCmd);
 					return -1;
 				}
 				else if (LastResult)
 				{
-					gDBG.Trace("%s %d:Rx %d %d \r\n", __FUNCTION__, __LINE__, Cmd, LastResult);
+					gDBG.Trace("%s %u:Rx %u %u \r\n", __FUNCTION__, __LINE__, Cmd, LastResult);
 					return -1;
 				}
 				else
@@ -231,7 +231,7 @@ USP_RX:
 			case USP_CMD_UPLOAD_UID:
 				if (Head.DataSize != 12)
 				{
-					gDBG.Trace("%s %d:UID Len %d \r\n", __FUNCTION__, __LINE__, Head.DataSize);
+					gDBG.Trace("%s %u:UID Len %u \r\n", __FUNCTION__, __LINE__, Head.DataSize);
 					return -1;
 				}
 				memcpy(gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID, DataStart, Head.DataSize);
@@ -239,7 +239,7 @@ USP_RX:
 			case USP_CMD_UPLOAD_VAR:
 				if (Head.DataSize != sizeof(gSys.DevData.Var) + sizeof(gSys.DevData.State) + sizeof(gSys.DevData.Error) + sizeof(gSys.DevData.IMEI) + sizeof(gSys.DevData.IMSI) + sizeof(gSys.DevData.ICCID) + sizeof(RMC_InfoStruct)+sizeof(GSV_InfoStruct))
 				{
-					gDBG.Trace("%s %d:Var Len %d %d\r\n", __FUNCTION__, __LINE__, Head.DataSize, sizeof(gSys.DevData.Var) + sizeof(gSys.DevData.State) + sizeof(gSys.DevData.Error) + sizeof(gSys.DevData.IMEI) + sizeof(gSys.DevData.IMSI) + sizeof(gSys.DevData.ICCID) + sizeof(RMC_InfoStruct)+sizeof(GSV_InfoStruct));
+					gDBG.Trace("%s %u:Var Len %u %u\r\n", __FUNCTION__, __LINE__, Head.DataSize, sizeof(gSys.DevData.Var) + sizeof(gSys.DevData.State) + sizeof(gSys.DevData.Error) + sizeof(gSys.DevData.IMEI) + sizeof(gSys.DevData.IMSI) + sizeof(gSys.DevData.ICCID) + sizeof(RMC_InfoStruct)+sizeof(GSV_InfoStruct));
 					return -1;
 				}
 				Pos = 0;
@@ -274,7 +274,7 @@ USP_RX:
 				{
 					if (Head.DataSize != (PARAM_TYPE_MAX * sizeof(Param_Byte60Union) + 1))
 					{
-						gDBG.Trace("%s %d:param len %d %d\r\n", __FUNCTION__, __LINE__, PARAM_TYPE_MAX * sizeof(Param_Byte60Union), Head.DataSize);
+						gDBG.Trace("%s %u:param len %u %u\r\n", __FUNCTION__, __LINE__, PARAM_TYPE_MAX * sizeof(Param_Byte60Union), Head.DataSize);
 						return -1;
 					}
 
@@ -289,7 +289,7 @@ USP_RX:
 				{
 					if (Head.DataSize != (sizeof(Param_Byte60Union) + 1))
 					{
-						gDBG.Trace("%s %d:param len %d %d\r\n", __FUNCTION__, __LINE__, sizeof(Param_Byte60Union), Head.DataSize);
+						gDBG.Trace("%s %u:param len %u %u\r\n", __FUNCTION__, __LINE__, sizeof(Param_Byte60Union), Head.DataSize);
 						return -1;
 					}
 
@@ -297,7 +297,7 @@ USP_RX:
 				}
 				else
 				{
-					gDBG.Trace("%s %d:param sn %d\r\n", __FUNCTION__, __LINE__, ParamSn);
+					gDBG.Trace("%s %u:param sn %u\r\n", __FUNCTION__, __LINE__, ParamSn);
 					return -1;
 				}
 				break;
@@ -351,7 +351,7 @@ static void MyDeviceAutoMode(void)
 					Result = MyDeviceUSPProc(USP_CMD_RW_PARAM, (u8 *)Req.pData, Req.Param1, Req.Param2, USP_COM_TO);
 					if (Result != USP_CMD_UPLOAD_PARAM)
 					{
-						gDBG.Trace("%s %d:set param fail!\r\n", __FUNCTION__, __LINE__);
+						gDBG.Trace("%s %u:set param fail!\r\n", __FUNCTION__, __LINE__);
 					}
 					if (Req.pData)
 					{
@@ -361,7 +361,7 @@ static void MyDeviceAutoMode(void)
 					Result = MyDeviceUSPProc(USP_CMD_RW_UID, (u8 *)Req.pData, Req.Param1, Req.Param2, USP_COM_TO);
 					if (Result != USP_CMD_UPLOAD_UID)
 					{
-						gDBG.Trace("%s %d:set uid fail!\r\n", __FUNCTION__, __LINE__);
+						gDBG.Trace("%s %u:set uid fail!\r\n", __FUNCTION__, __LINE__);
 					}
 					if (Req.pData)
 					{
@@ -397,18 +397,18 @@ static void MyDeviceAutoMode(void)
 
 							if (Result < 0)
 							{
-								gDBG.Trace("%s %d:upgrade fail!\r\n", __FUNCTION__, __LINE__);
+								gDBG.Trace("%s %u:upgrade fail!\r\n", __FUNCTION__, __LINE__);
 								break;
 							}
 						}
 
 						if (FinishLen >= dwLen)
 						{
-							gDBG.Trace("%s %d:upgrade ok!\r\n", __FUNCTION__, __LINE__);
+							gDBG.Trace("%s %u:upgrade ok!\r\n", __FUNCTION__, __LINE__);
 						}
 						else
 						{
-							gDBG.Trace("%s %d:upgrade fail!\r\n", __FUNCTION__, __LINE__);
+							gDBG.Trace("%s %u:upgrade fail!\r\n", __FUNCTION__, __LINE__);
 						}
 					}
 					break;
@@ -433,7 +433,7 @@ static void MyDeviceAutoMode(void)
 					Result = MyDeviceUSPProc(USP_CMD_READ_VAR, 0, 0, 0, USP_COM_TO);
 					if (Result != USP_CMD_UPLOAD_VAR)
 					{
-						gDBG.Trace("%s %d:get var error!\r\n", __FUNCTION__, __LINE__);
+						gDBG.Trace("%s %u:get var error!\r\n", __FUNCTION__, __LINE__);
 						goto ERROR_OUT;
 					}
 					else
@@ -467,7 +467,7 @@ static void MyDeviceAutoMode(void)
 				MyDeviceUSPProc(USP_CMD_SET_BR, NULL, 0, gSys.ComCtrl.CommBR, 10);
 				CloseHandle(gSys.ComCtrl.hCom);
 				gSys.ComCtrl.hCom = NULL;
-				gDBG.Trace("%s %d:%d\r\n", __FUNCTION__, __LINE__, gSys.ComCtrl.CommBR);
+				gDBG.Trace("%s %u:%u\r\n", __FUNCTION__, __LINE__, gSys.ComCtrl.CommBR);
 				gSys.ComCtrl.hCom = OpenComPort(gSys.ComNoList[i], gSys.ComCtrl.CommBR);
 				if (!gSys.ComCtrl.hCom)
 				{
@@ -503,7 +503,7 @@ static void MyDeviceAutoMode(void)
 			PostMessage(gSys.mMainWnd, WM_CORE_UPDATE_VAR, WPARAM(0), LPARAM(0));
 			PostMessage(gSys.mMainWnd, WM_CORE_UPDATE_VERSION, WPARAM(0), LPARAM(0));
 			PostMessage(gSys.mMainWnd, WM_CORE_UPDATE_PARAM, WPARAM(0), LPARAM(0));
-			gDBG.Trace("%s %d:COM%d connect\r\n", __FUNCTION__, __LINE__, gSys.ComNoList[i]);
+			gDBG.Trace("%s %u:COM%u connect\r\n", __FUNCTION__, __LINE__, gSys.ComNoList[i]);
 		}
 		return;
 	}
@@ -580,7 +580,7 @@ static DWORD WINAPI MyDeviceThread(LPVOID pData)
 			{
 				if (Error)
 				{
-					gDBG.Trace("%s %d:%d\r\n", __FUNCTION__, __LINE__, Error);
+					gDBG.Trace("%s %u:%u\r\n", __FUNCTION__, __LINE__, Error);
 					gSys.ComCtrl.IsWork = 0;
 					MyDeviceChangeWorkMode();
 				}

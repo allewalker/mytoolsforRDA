@@ -112,6 +112,7 @@
     <ClInclude Include="..\lib\MFCApi.h" />
     <ClInclude Include="..\lib\mydevice.h" />
     <ClInclude Include="..\lib\PrintMsg.h" />
+    <ClInclude Include="..\lib\TEA.h" />
     <ClInclude Include="..\lib\usp.h" />
     <ClInclude Include="ComCtrl.h" />
     <ClInclude Include="DevUpgrade.h" />
@@ -128,6 +129,7 @@
     <ClCompile Include="..\lib\MFCApi.cpp" />
     <ClCompile Include="..\lib\mydevice.cpp" />
     <ClCompile Include="..\lib\PrintMsg.cpp" />
+    <ClCompile Include="..\lib\TEA.cpp" />
     <ClCompile Include="..\lib\usp.cpp" />
     <ClCompile Include="ComCtrl.cpp" />
     <ClCompile Include="DevUpgrade.cpp" />

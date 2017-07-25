@@ -85,7 +85,7 @@ void CDevUpgrade::CreateUpgradeFile()
 {
 	uint32_t SectionPos, i;
 	CString Str;
-	Str.Format(_T("gl_%08x_%d.bin"), gSys.UpgradeFileBuf.Head.MainVersion, gSys.UpgradeFileBuf.Head.AppVersion);
+	Str.Format(_T("gl_%08x_%u.bin"), gSys.UpgradeFileBuf.Head.MainVersion, gSys.UpgradeFileBuf.Head.AppVersion);
 	HANDLE hFile = CreateFile((LPCTSTR)Str,
 		GENERIC_WRITE, FILE_SHARE_WRITE,
 		NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -137,11 +137,11 @@ bool CDevUpgrade::ReadUpgradeFile()
 		File.SeekToBegin();
 
 		File.Read(&gSys.UpgradeFileBuf.Head, sizeof(File_HeadStruct));
-		gDBG.Trace("%s %d:%08x %d %d %d\r\n", __FUNCTION__, __LINE__, gSys.UpgradeFileBuf.Head.CRC32, gSys.UpgradeFileBuf.Head.BinFileLen, gSys.UpgradeFileBuf.Head.MainVersion,
+		gDBG.Trace("%s %u:%08x %u %u %u\r\n", __FUNCTION__, __LINE__, gSys.UpgradeFileBuf.Head.CRC32, gSys.UpgradeFileBuf.Head.BinFileLen, gSys.UpgradeFileBuf.Head.MainVersion,
 			gSys.UpgradeFileBuf.Head.AppVersion);
 		if (dwFileLen != (sizeof(File_HeadStruct) + (gSys.UpgradeFileBuf.Head.BinFileLen * 4096)))
 		{
-			gDBG.Trace("%s %d:%d %d\r\n", __FUNCTION__, __LINE__, dwFileLen, sizeof(File_HeadStruct)+(gSys.UpgradeFileBuf.Head.BinFileLen * 4096));
+			gDBG.Trace("%s %u:%u %u\r\n", __FUNCTION__, __LINE__, dwFileLen, sizeof(File_HeadStruct)+(gSys.UpgradeFileBuf.Head.BinFileLen * 4096));
 			AfxMessageBox(L"所选文件长度错误2");
 			File.Close();
 			return false;
@@ -236,7 +236,7 @@ void CDevUpgrade::OnBnClickedMakeBinButton()
 				{
 					if (!IsHexDigit(FileData[j]))
 					{
-						gDBG.Trace("find end @ %d all %d\r\n", i, SectionPos * 1024 + CachePos);
+						gDBG.Trace("find end @ %u all %u\r\n", i, SectionPos * 1024 + CachePos);
 						FindEnd = 1;
 						mProcProgress.SetPos(2);
 						break;
@@ -258,7 +258,7 @@ void CDevUpgrade::OnBnClickedMakeBinButton()
 					{
 						if (gSys.UpgradeFileBuf.SectionData[SectionPos].Data[j] != 0xffffffff)
 						{
-							gDBG.Trace("%s %d:section %d has data\r\n", __FUNCTION__, __LINE__, SectionPos);
+							gDBG.Trace("%s %u:section %u has data\r\n", __FUNCTION__, __LINE__, SectionPos);
 							SectionPos++;
 							CachePos = 0;
 							FindEnd = 0;
@@ -282,7 +282,7 @@ void CDevUpgrade::OnBnClickedMakeBinButton()
 					if (!memcmp(FileData, "08360000\n", 9))
 					{
 						FindStart = 1;
-						gDBG.Trace("find start @ %d\r\n", i);
+						gDBG.Trace("find start @ %u\r\n", i);
 						mProcProgress.SetPos(1);
 						continue;
 					}
@@ -302,7 +302,7 @@ void CDevUpgrade::OnBnClickedMakeBinButton()
 			gSys.UpgradeFileBuf.Head.MaigcNum = RDA_UPGRADE_MAGIC_NUM;
 			gSys.UpgradeFileBuf.Head.BinFileLen = SectionPos;
 			gSys.UpgradeFileBuf.Head.CRC32 = CRC32_Cal(gSys.CRC32Table, (u8 *)&gSys.UpgradeFileBuf.SectionData[0].Data[0], gSys.UpgradeFileBuf.Head.BinFileLen * 4096, CRC32_START);
-			gDBG.Trace("%s %d:%08x %d %08x %d\r\n", __FUNCTION__, __LINE__, gSys.UpgradeFileBuf.Head.CRC32, gSys.UpgradeFileBuf.Head.BinFileLen, gSys.UpgradeFileBuf.Head.MainVersion,
+			gDBG.Trace("%s %u:%08x %u %08x %u\r\n", __FUNCTION__, __LINE__, gSys.UpgradeFileBuf.Head.CRC32, gSys.UpgradeFileBuf.Head.BinFileLen, gSys.UpgradeFileBuf.Head.MainVersion,
 				gSys.UpgradeFileBuf.Head.AppVersion);
 		}
 
@@ -360,7 +360,7 @@ void CDevUpgrade::OnBnClickedMakeUpgradeBinButton()
 		CFile File2(hFile);
 		File2.Write((u8 *)&Head, sizeof(File_HeadStruct));
 		CopyLen = 0;
-		gDBG.Trace("%s %d:%08x %d %08x\r\n", __FUNCTION__, __LINE__, Head.CRC32, Head.BinFileLen, Head.MainVersion);
+		gDBG.Trace("%s %u:%08x %u %08x\r\n", __FUNCTION__, __LINE__, Head.CRC32, Head.BinFileLen, Head.MainVersion);
 		while (CopyLen < Head.BinFileLen)
 		{
 			DummyLen = ((CopyLen + 64) >= Head.BinFileLen) ? 64 : (Head.BinFileLen - CopyLen);

@@ -7,6 +7,7 @@
 #include "MyProjectDlg.h"
 #include "afxdialogex.h"
 #include "AES.h"
+#include "TEA.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -140,7 +141,7 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.InsertColumn(2 + 2 * LIST_BD_COL, L"", LVCFMT_CENTER, 40);// 插入列
 	for (int i = 0; i < 100; i++)
 	{
-		Str.Format(_T("%d"), i);
+		Str.Format(_T("%u"), i);
 		mMyShowList.InsertItem(i, Str);
 	}
 	mMyShowList.SetItemText(SYS_TIME, 1 + 2 * LIST_VAR_COL, L"运行时间");
@@ -306,6 +307,13 @@ BOOL CMyProjectDlg::OnInitDialog()
 // 	AES_DecInit(&AES);
 // 	AES_Decrypt(&AES, Temp2, Temp3);
 // 	gDBG.HexTrace(Temp3, 16);
+
+// 	u32 Data[2] = { 1, 2 };
+// 	u32 Key[4] = { 2, 2, 3, 4 };
+// 	TEA_Encode(Data, Key, 64, TEA_TYPE_XX);
+// 	gDBG.Trace("%u %u\r\n", Data[0], Data[1]);
+// 	TEA_Decode(Data, Key, 64, TEA_TYPE_XX);
+// 	gDBG.Trace("%u %u\r\n", Data[0], Data[1]);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -426,15 +434,15 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 			{
 			case UTC_DATE:
 				uDate.dwDate = ShowData.Var[i];
-				Str.Format(_T("%d-%d-%d"), uDate.Date.Year, uDate.Date.Mon, uDate.Date.Day);
+				Str.Format(_T("%u-%u-%u"), uDate.Date.Year, uDate.Date.Mon, uDate.Date.Day);
 				break;
 			case UTC_TIME:
 				uTime.dwTime = ShowData.Var[i];
-				Str.Format(_T("%d:%d:%d"), uTime.Time.Hour, uTime.Time.Min, uTime.Time.Sec);
+				Str.Format(_T("%u:%u:%u"), uTime.Time.Hour, uTime.Time.Min, uTime.Time.Sec);
 				break;
 			case IO_VAL:
 				uIO.Val = ShowData.Var[i];
-				Str.Format(_T("%d:%d:%d"), uIO.IOVal.VACC, uIO.IOVal.VCC, uIO.IOVal.ACC);
+				Str.Format(_T("%u:%u:%u"), uIO.IOVal.VACC, uIO.IOVal.VCC, uIO.IOVal.ACC);
 				break;
 			case CELL_ID:
 				Str.Format(_T("%08x"), ShowData.Var[i]);
@@ -445,15 +453,15 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 			case GSENSOR_KEEP_VAL:
 				if (ShowData.Var[i] > 5)
 				{
-					Str.Format(_T("%d"), ShowData.Var[i]);
+					Str.Format(_T("%u"), ShowData.Var[i]);
 				}
 				else
 				{
-					Str.Format(_T("%d"), 0);
+					Str.Format(_T("%u"), 0);
 				}
 				break;
 			default:
-				Str.Format(_T("%d"), ShowData.Var[i]);
+				Str.Format(_T("%u"), ShowData.Var[i]);
 				break;
 			}
 			mMyShowList.SetItemText(i, 2 + 2 * LIST_VAR_COL, Str);
@@ -465,7 +473,7 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 		if (gSys.DevData.State[i] != ShowData.State[i])
 		{
 			ShowData.State[i] = gSys.DevData.State[i];
-			Str.Format(_T("%d"), ShowData.State[i]);
+			Str.Format(_T("%u"), ShowData.State[i]);
 			mMyShowList.SetItemText(i + VAR_MAX, 2 + 2 * LIST_VAR_COL, Str);
 		}
 	}
@@ -475,7 +483,7 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 		if (gSys.DevData.Error[i] != ShowData.Error[i])
 		{
 			ShowData.Error[i] = gSys.DevData.Error[i];
-			Str.Format(_T("%d"), ShowData.Error[i]);
+			Str.Format(_T("%u"), ShowData.Error[i]);
 			mMyShowList.SetItemText(i + VAR_MAX + STATE_MAX, 2 + 2 * LIST_VAR_COL, Str);
 		}
 	}
@@ -508,7 +516,7 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 	{
 		ShowData.RMCInfo.UTCDate = gSys.DevData.RMCInfo.UTCDate;
 		uDate.Date = ShowData.RMCInfo.UTCDate;
-		Str.Format(_T("%d-%d-%d"), uDate.Date.Year, uDate.Date.Mon, uDate.Date.Day);
+		Str.Format(_T("%u-%u-%u"), uDate.Date.Year, uDate.Date.Mon, uDate.Date.Day);
 		mMyShowList.SetItemText(GPS_INFO_UTC_DATE_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
 
@@ -516,21 +524,21 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 	{
 		ShowData.RMCInfo.UTCTime = gSys.DevData.RMCInfo.UTCTime;
 		uTime.Time = ShowData.RMCInfo.UTCTime;
-		Str.Format(_T("%d:%d:%d"), uTime.Time.Hour, uTime.Time.Min, uTime.Time.Sec);
+		Str.Format(_T("%u:%u:%u"), uTime.Time.Hour, uTime.Time.Min, uTime.Time.Sec);
 		mMyShowList.SetItemText(GPS_INFO_UTC_TIME_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
 
 	if (ShowData.RMCInfo.LocatStatus != gSys.DevData.RMCInfo.LocatStatus)
 	{	
 		ShowData.RMCInfo.LocatStatus = gSys.DevData.RMCInfo.LocatStatus;
-		Str.Format(_T("%d"), ShowData.RMCInfo.LocatStatus);
+		Str.Format(_T("%u"), ShowData.RMCInfo.LocatStatus);
 		mMyShowList.SetItemText(GPS_INFO_LOCAT_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	} 
 
 	if (ShowData.RMCInfo.Speed != gSys.DevData.RMCInfo.Speed)
 	{
 		ShowData.RMCInfo.Speed = gSys.DevData.RMCInfo.Speed;
-		Str.Format(_T("%d"), ShowData.RMCInfo.Speed);
+		Str.Format(_T("%u"), ShowData.RMCInfo.Speed);
 		mMyShowList.SetItemText(GPS_INFO_SPEED_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
 
@@ -553,7 +561,7 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 		ShowData.RMCInfo.LatDegree = gSys.DevData.RMCInfo.LatDegree;
 		ShowData.RMCInfo.LatMin = gSys.DevData.RMCInfo.LatMin;
 		dwTemp = ShowData.RMCInfo.LatDegree * 1000000 + ShowData.RMCInfo.LatMin;
-		Str.Format(_T("%d"), dwTemp);
+		Str.Format(_T("%u"), dwTemp);
 		mMyShowList.SetItemText(GPS_INFO_LAT_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
 
@@ -562,7 +570,7 @@ LRESULT CMyProjectDlg::OnUpdateVarMessage(WPARAM wParam, LPARAM lParam)
 		ShowData.RMCInfo.LgtDegree = gSys.DevData.RMCInfo.LgtDegree;
 		ShowData.RMCInfo.LgtMin = gSys.DevData.RMCInfo.LgtMin;
 		dwTemp = ShowData.RMCInfo.LgtDegree * 1000000 + ShowData.RMCInfo.LgtMin;
-		Str.Format(_T("%d"), dwTemp);
+		Str.Format(_T("%u"), dwTemp);
 		mMyShowList.SetItemText(GPS_INFO_LGT_RAW, 2 + 2 * LIST_GPS_INFO_COL, Str);
 	}
 
@@ -581,7 +589,7 @@ LRESULT CMyProjectDlg::OnUpdateParamMessage(WPARAM wParam, LPARAM lParam)
 		if (gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[i] != ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[i])
 		{
 			ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[i] = gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[i];
-			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[i]);
+			Str.Format(_T("%u"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[i]);
 			mMyShowList.SetItemText(i + MAIN_PARAM_UID0_RAW, 2 + 2 * LIST_MAIN_PARAM_COL, Str);
 		}
 	}
@@ -590,7 +598,7 @@ LRESULT CMyProjectDlg::OnUpdateParamMessage(WPARAM wParam, LPARAM lParam)
 	{
 		ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainIP = gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainIP;
 		uIP.u32_addr = ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.MainIP;
-		Str.Format(_T("%d.%d.%d.%d"), uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3]);
+		Str.Format(_T("%u.%u.%u.%u"), uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3]);
 		mMyShowList.SetItemText(MAIN_PARAM_IP_RAW, 2 + 2 * LIST_MAIN_PARAM_COL, Str);
 	}
 
@@ -605,21 +613,21 @@ LRESULT CMyProjectDlg::OnUpdateParamMessage(WPARAM wParam, LPARAM lParam)
 	if (gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.TCPPort != ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.TCPPort)
 	{
 		ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.TCPPort = gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.TCPPort;
-		Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.TCPPort);
+		Str.Format(_T("%u"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.TCPPort);
 		mMyShowList.SetItemText(MAIN_PARAM_TCP_PORT_RAW, 2 + 2 * LIST_MAIN_PARAM_COL, Str);
 	}
 
 	if (gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UDPPort != ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UDPPort)
 	{
 		ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UDPPort = gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UDPPort;
-		Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UDPPort);
+		Str.Format(_T("%u"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UDPPort);
 		mMyShowList.SetItemText(MAIN_PARAM_UDP_PORT_RAW, 2 + 2 * LIST_MAIN_PARAM_COL, Str);
 	}
 
 	if (gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.CustCode != ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.CustCode)
 	{
 		ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.CustCode = gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.CustCode;
-		Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.CustCode);
+		Str.Format(_T("%u"), ShowData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.CustCode);
 		mMyShowList.SetItemText(MAIN_PARAM_USER_CODE_RAW, 2 + 2 * LIST_MAIN_PARAM_COL, Str);
 	}
 
@@ -628,7 +636,7 @@ LRESULT CMyProjectDlg::OnUpdateParamMessage(WPARAM wParam, LPARAM lParam)
 		if (gSys.DevData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i])
 		{
 			ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i];
-			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i]);
+			Str.Format(_T("%u"), ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i]);
 			mMyShowList.SetItemText(i, 2 + 2 * LIST_SYS_PARAM_COL, Str);
 		}
 	}
@@ -638,7 +646,7 @@ LRESULT CMyProjectDlg::OnUpdateParamMessage(WPARAM wParam, LPARAM lParam)
 		if (gSys.DevData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i])
 		{
 			ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i];
-			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i]);
+			Str.Format(_T("%u"), ShowData.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[i]);
 			mMyShowList.SetItemText(i, 2 + 2 * LIST_SYS_PARAM_COL, Str);
 		}
 	}
@@ -648,7 +656,7 @@ LRESULT CMyProjectDlg::OnUpdateParamMessage(WPARAM wParam, LPARAM lParam)
 		if (gSys.DevData.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param[i])
 		{
 			ShowData.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param[i];
-			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param[i]);
+			Str.Format(_T("%u"), ShowData.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param[i]);
 			mMyShowList.SetItemText(i, 2 + 2 * LIST_GPS_PARAM_COL, Str);
 		}
 	}
@@ -658,7 +666,7 @@ LRESULT CMyProjectDlg::OnUpdateParamMessage(WPARAM wParam, LPARAM lParam)
 		if (gSys.DevData.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[i])
 		{
 			ShowData.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[i];
-			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[i]);
+			Str.Format(_T("%u"), ShowData.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[i]);
 			mMyShowList.SetItemText(i, 2 + 2 * LIST_MONITOR_PARAM_COL, Str);
 		}
 	}
@@ -668,7 +676,7 @@ LRESULT CMyProjectDlg::OnUpdateParamMessage(WPARAM wParam, LPARAM lParam)
 		if (gSys.DevData.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param[i])
 		{
 			ShowData.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param[i];
-			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param[i]);
+			Str.Format(_T("%u"), ShowData.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param[i]);
 			mMyShowList.SetItemText(i, 2 + 2 * LIST_ALARM1_PARAM_COL, Str);
 		}
 	}
@@ -678,7 +686,7 @@ LRESULT CMyProjectDlg::OnUpdateParamMessage(WPARAM wParam, LPARAM lParam)
 		if (gSys.DevData.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[i] != ShowData.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[i])
 		{
 			ShowData.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[i] = gSys.DevData.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[i];
-			Str.Format(_T("%d"), ShowData.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[i]);
+			Str.Format(_T("%u"), ShowData.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[i]);
 			mMyShowList.SetItemText(i, 2 + 2 * LIST_ALARM2_PARAM_COL, Str);
 		}
 	}

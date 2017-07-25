@@ -66,6 +66,9 @@
     <ClInclude Include="DevUpgrade.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\lib\TEA.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyProject.cpp">
@@ -103,6 +106,9 @@
     </ClCompile>
     <ClCompile Include="DevUpgrade.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\TEA.cpp">
+      <Filter>Lib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
