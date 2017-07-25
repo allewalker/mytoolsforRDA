@@ -1,0 +1,7 @@
+*.ini
+/MyProject/Debug/*.obj
+/MyProject/Debug/MyProject.tlog/*.tlog
+/ipch/myproject-8ebb762f/*.ipch
+/MyProject/Debug/*.idb
+/*.sdf
+/MyProject/Debug
