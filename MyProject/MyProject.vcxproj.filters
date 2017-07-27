@@ -72,6 +72,9 @@
     <ClInclude Include="..\lib\DES.h">
       <Filter>Lib</Filter>
     </ClInclude>
+    <ClInclude Include="..\lib\MD5.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyProject.cpp">
@@ -114,6 +117,9 @@
       <Filter>Lib</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\DES.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\MD5.cpp">
       <Filter>Lib</Filter>
     </ClCompile>
   </ItemGroup>

@@ -107,23 +107,6 @@ void DelRBuffer(RBuffer *Buf, u32 Len);
 u32 WriteRBufferForce(RBuffer *Buf, u8 *Data, u32 Len);
 u32 TransferUnpack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf);
 u32 TransferPack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf);
-/************************************************************************/
-/*MD5œ‡πÿ                                                                      */
-/************************************************************************/
-typedef struct
-{
-	uint32_t count[2];
-	uint32_t state[4];
-	uint8_t buffer[64];
-}MD5_CTX;
-
-
-void MD5Init(MD5_CTX *context);
-void MD5Update(MD5_CTX *context, uint8_t *input, uint32_t inputlen);
-void MD5Final(MD5_CTX *context, uint8_t digest[16]);
-void MD5Transform(uint32_t state[4], uint8_t block[64]);
-void MD5Encode(uint8_t *output, uint32_t *input, uint32_t len);
-void MD5Decode(uint32_t *output, uint8_t *input, uint32_t len);
 unsigned int CmdParseParam(char* pStr, CmdParam *CmdParam);
 #endif 
 

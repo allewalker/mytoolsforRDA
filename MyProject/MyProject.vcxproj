@@ -110,6 +110,7 @@
     <ClInclude Include="..\lib\ComSerial.h" />
     <ClInclude Include="..\lib\config.h" />
     <ClInclude Include="..\lib\DES.h" />
+    <ClInclude Include="..\lib\MD5.h" />
     <ClInclude Include="..\lib\MFCApi.h" />
     <ClInclude Include="..\lib\mydevice.h" />
     <ClInclude Include="..\lib\PrintMsg.h" />
@@ -128,6 +129,7 @@
     <ClCompile Include="..\lib\CApi.cpp" />
     <ClCompile Include="..\lib\ComSerial.cpp" />
     <ClCompile Include="..\lib\DES.cpp" />
+    <ClCompile Include="..\lib\MD5.cpp" />
     <ClCompile Include="..\lib\MFCApi.cpp" />
     <ClCompile Include="..\lib\mydevice.cpp" />
     <ClCompile Include="..\lib\PrintMsg.cpp" />

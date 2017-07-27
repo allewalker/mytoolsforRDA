@@ -8,6 +8,7 @@
 #include "afxdialogex.h"
 #include "AES.h"
 #include "TEA.h"
+#include "MD5.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -314,6 +315,10 @@ BOOL CMyProjectDlg::OnInitDialog()
 // 	gDBG.Trace("%u %u\r\n", Data[0], Data[1]);
 // 	TEA_Decode(Data, Key, 64, TEA_TYPE_XX);
 // 	gDBG.Trace("%u %u\r\n", Data[0], Data[1]);
+	u8 MD5[16];
+	s8 Text[] = "1234567890";
+	MD5_Cal(Text, strlen(Text), MD5);
+	gDBG.HexTrace(MD5, 16);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
