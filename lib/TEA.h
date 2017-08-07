@@ -19,6 +19,6 @@ enum
 	TEA_TYPE_X,
 	TEA_TYPE_XX,
 };
-void TEA_Encode(u32 *Data, u32 *Key, u32 Rounds, u8 Type);
-void TEA_Decode(uint32_t *Data, uint32_t *Key, uint32_t Rounds, uint8_t Type);
+void TEA_Encrypt(u32 *Data, u32 *Key, u32 Rounds, u8 Type);
+void TEA_Decrypt(u32 *Data, u32 *Key, u32 Rounds, u8 Type);
 #endif

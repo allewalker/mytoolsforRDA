@@ -8,6 +8,7 @@
 #include "afxdialogex.h"
 #include "AES.h"
 #include "TEA.h"
+#include "DES.h"
 #include "MD5.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -213,7 +214,6 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(MAIN_PARAM_USER_CODE_RAW, 1 + 2 * LIST_MAIN_PARAM_COL, L"用户代号");
 
 	mMyShowList.SetItemText(PARAM_DETECT_PERIOD, 1 + 2 * LIST_SYS_PARAM_COL, L"检测周期");
-	mMyShowList.SetItemText(PARAM_SENSOR_EN, 1 + 2 * LIST_SYS_PARAM_COL, L"检测使能");
 	mMyShowList.SetItemText(PARAM_COM_BR, 1 + 2 * LIST_SYS_PARAM_COL, L"通讯BR");
 	mMyShowList.SetItemText(PARAM_GPS_BR, 1 + 2 * LIST_SYS_PARAM_COL, L"GPSBR");
 	mMyShowList.SetItemText(PARAM_STOP_VBAT, 1 + 2 * LIST_SYS_PARAM_COL, L"停止电压");
@@ -309,16 +309,19 @@ BOOL CMyProjectDlg::OnInitDialog()
 // 	AES_Decrypt(&AES, Temp2, Temp3);
 // 	gDBG.HexTrace(Temp3, 16);
 
-// 	u32 Data[2] = { 1, 2 };
-// 	u32 Key[4] = { 2, 2, 3, 4 };
-// 	TEA_Encode(Data, Key, 64, TEA_TYPE_XX);
-// 	gDBG.Trace("%u %u\r\n", Data[0], Data[1]);
-// 	TEA_Decode(Data, Key, 64, TEA_TYPE_XX);
-// 	gDBG.Trace("%u %u\r\n", Data[0], Data[1]);
-	u8 MD5[16];
-	s8 Text[] = "1234567890";
-	MD5_Cal(Text, strlen(Text), MD5);
-	gDBG.HexTrace(MD5, 16);
+// 	u8 MD5[16];
+// 	s8 Text[] = "1234567890";
+// 	MD5_Cal(Text, strlen(Text), MD5);
+// 	gDBG.HexTrace(MD5, 16);
+// 	u8 P[] = "12346578";
+// 	u8 C[8];
+// 	u8 Key[] = "12345678";
+// 	DES_SubKeyBitStruct SubKey[16];
+// 	DES_MakeSubKey(Key, SubKey);
+// 	DES_Cal(P, SubKey, C, 0);
+// 	gDBG.HexTrace(C, 8);
+// 	DES_Cal(C, SubKey, P, 1);
+// 	gDBG.HexTrace(P, 8);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
