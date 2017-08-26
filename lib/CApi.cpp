@@ -144,10 +144,10 @@ uint8_t IsLeapYear(uint32_t Year)
 		return 0;
 }
 
-u64 UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
+LongInt UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 {
-	u32 DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
-	u64 DYear, DDay, DSec;
+	uint32_t DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
+	LongInt DYear, DDay, DSec;
 
 	DYear = Date->Year - 1970;
 	if (DYear)	//1970年以后,1972是第一个闰年
@@ -162,11 +162,11 @@ u64 UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 	return DSec;
 }
 
-u32 Tamp2UTC(u64 Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, u32 LastDDay)
+uint32_t Tamp2UTC(LongInt Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, uint32_t LastDDay)
 {
-	u32 DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
-	u32 DYear, LDYear, i, LeapFlag;
-	u32 DDay;
+	uint32_t DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
+	uint32_t DYear, LDYear, i, LeapFlag;
+	uint32_t DDay;
 	DDay = Sec / 86400;
 
 	if (DDay != LastDDay)
@@ -188,7 +188,6 @@ u32 Tamp2UTC(u64 Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, u32 
 			DDay -= (DYear * 365 + ((DYear + 2) / 4) - ((DYear + 2) / 100) + ((DYear + 2) / 400));
 		}
 
-		//gPrintMsg.Trace("%d\r\n", DDay);
 		Date->Mon = 12;
 		for (i = 1; i < 12; i++)
 		{
@@ -209,10 +208,10 @@ u32 Tamp2UTC(u64 Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, u32 
 	return DDay;
 }
 
-u8 XorCheck(u8 *Data, u32 Len, u8 CheckStart)
+uint8_t XorCheck(uint8_t *Data, uint32_t Len, uint8_t CheckStart)
 {
-	u8 Check = CheckStart;
-	u32 i;
+	uint8_t Check = CheckStart;
+	uint32_t i;
 	for (i = 0; i < Len; i++)
 	{
 		Check ^= Data[i];
@@ -223,7 +222,7 @@ u8 XorCheck(u8 *Data, u32 Len, u8 CheckStart)
 /************************************************************************/
 /*  CRC16和CRC32检验                                                                    */
 /************************************************************************/
-uint16_t CRC16Cal(uint8_t *Src, uint16_t Len, uint16_t CRC16Last, uint16_t CRCRoot, u8 IsReverse)
+uint16_t CRC16Cal(uint8_t *Src, uint16_t Len, uint16_t CRC16Last, uint16_t CRCRoot, uint8_t IsReverse)
 {
 	uint16_t i;
 	uint16_t CRC16 = CRC16Last;
@@ -294,14 +293,14 @@ uint16_t CRC16Cal(uint8_t *Src, uint16_t Len, uint16_t CRC16Last, uint16_t CRCRo
 * @param	ch 反转长度，多少位
 * @retval N反转后的数据
 */
-static uint64_t Reflect(uint64_t ref, uint8_t ch)
+static LongInt Reflect(LongInt ref, uint8_t ch)
 {
 	unsigned long long value = 0;
-	uint32_t i;
+	LongInt i;
 	for (i = 1; i< (ch + 1); i++)
 	{
 		if (ref & 1)
-			value |= (uint64_t)1 << (ch - i);
+			value |= (LongInt)1 << (ch - i);
 		ref >>= 1;
 	}
 	return value;
@@ -362,7 +361,7 @@ uint32_t CRC32_Cal(uint32_t *CRC32_Table, uint8_t *Buf, uint32_t Size, uint32_t 
 }
 
 
-void InitRBuffer(RBuffer *Buf, u8 *Data, u32 MaxLen, u32 DataSize)
+void InitRBuffer(RBuffer *Buf, uint8_t *Data, uint32_t MaxLen, uint32_t DataSize)
 {
 	Buf->Data = Data;
 	Buf->Len = 0;
@@ -371,9 +370,9 @@ void InitRBuffer(RBuffer *Buf, u8 *Data, u32 MaxLen, u32 DataSize)
 	Buf->DataSize = DataSize;
 }
 
-u32 QueryRBuffer(RBuffer *Buf, u8 *Data, u32 Len)
+uint32_t QueryRBuffer(RBuffer *Buf, uint8_t *Data, uint32_t Len)
 {
-	u32 i, p;
+	uint32_t i, p;
 
 	if (Buf->Len < Len)
 	{
@@ -411,9 +410,9 @@ u32 QueryRBuffer(RBuffer *Buf, u8 *Data, u32 Len)
 	return Len;
 }
 
-u32 ReadRBuffer(RBuffer *Buf, u8 *Data, u32 Len)
+uint32_t ReadRBuffer(RBuffer *Buf, uint8_t *Data, uint32_t Len)
 {
-	u32 l;
+	uint32_t l;
 
 	l = QueryRBuffer(Buf, Data, Len);
 	Buf->Len -= l;
@@ -426,7 +425,7 @@ u32 ReadRBuffer(RBuffer *Buf, u8 *Data, u32 Len)
 	return l;
 }
 
-void DelRBuffer(RBuffer *Buf, u32 Len)
+void DelRBuffer(RBuffer *Buf, uint32_t Len)
 {
 	if (Buf->Len < Len)
 	{
@@ -445,9 +444,9 @@ void DelRBuffer(RBuffer *Buf, u32 Len)
 	}
 }
 
-u32 WriteRBufferForce(RBuffer *Buf, u8 *Data, u32 Len)
+uint32_t WriteRBufferForce(RBuffer *Buf, uint8_t *Data, uint32_t Len)
 {
-	u32 i, p, cut_off = 0;
+	uint32_t i, p, cut_off = 0;
 	cut_off = Buf->MaxLength - Buf->Len;
 	if (cut_off >= Len)
 	{
@@ -546,10 +545,10 @@ unsigned int CmdParseParam(char* pStr, CmdParam *CmdParam)
 * 数据中遇到Code -> Code F2
 */
 
-u32 TransferPack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf)
+uint32_t TransferPack(uint8_t Flag, uint8_t Code, uint8_t F1, uint8_t F2, uint8_t *InBuf, uint32_t Len, uint8_t *OutBuf)
 {
-	u32 TxLen = 0;
-	u32 i;
+	uint32_t TxLen = 0;
+	uint32_t i;
 	OutBuf[0] = Flag;
 	TxLen = 1;
 	for (i = 0; i < Len; i++)
@@ -581,10 +580,10 @@ u32 TransferPack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf)
 * 数据中遇到Flag 出错返回0
 */
 
-u32 TransferUnpack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf)
+uint32_t TransferUnpack(uint8_t Flag, uint8_t Code, uint8_t F1, uint8_t F2, uint8_t *InBuf, uint32_t Len, uint8_t *OutBuf)
 {
-	u32 RxLen = 0;
-	u32 i = 0;
+	uint32_t RxLen = 0;
+	uint32_t i = 0;
 	while (i < Len)
 	{
 		if (InBuf[i] == Code)

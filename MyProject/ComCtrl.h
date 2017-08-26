@@ -21,7 +21,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
 	CString BinFilePath;
-	u8 mLastByte;
+	uint8_t mLastByte;
 public:
 	uint8_t *DLData;
 	void UpdateProfile();

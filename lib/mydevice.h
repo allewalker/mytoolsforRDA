@@ -56,6 +56,7 @@ enum SYS_ERROR_ENUM
 	ANT_BREAK_ERROR,
 	SENSOR_ERROR,
 	LOW_POWER_ERROR,
+	NO_LOCAT_ERROR,
 	ERROR_MAX,
 };
 
@@ -167,54 +168,54 @@ typedef struct
 {
 	Date_UserDataStruct UTCDate;//UTC时间
 	Time_UserDataStruct UTCTime;
-	u32 HighLevel;
-	u32 LatDegree;
-	u32 LatMin;
-	u32 LgtDegree;
-	u32 LgtMin;
-	u32 Speed;//字段7:地面速率（0~999.9999节）
-	u32 Cog;//字段8:地面航向（0 ~359.999 度，以真北为参考基准，前面的0也将被传输）
-	s8 LocatStatus;//字段2:定位状态，1=有效定位，0=无效定位
-	s8 LatNS;
-	s8 LgtEW;
-	u8 LocatMode;
+	uint32_t HighLevel;
+	uint32_t LatDegree;
+	uint32_t LatMin;
+	uint32_t LgtDegree;
+	uint32_t LgtMin;
+	uint32_t Speed;//字段7:地面速率（0~999.9999节）
+	uint32_t Cog;//字段8:地面航向（0 ~359.999 度，以真北为参考基准，前面的0也将被传输）
+	char LocatStatus;//字段2:定位状态，1=有效定位，0=无效定位
+	char LatNS;
+	char LgtEW;
+	uint8_t LocatMode;
 }RMC_InfoStruct;
 
 typedef struct
 {
-	u8 PRN[2][48];
-	u8 CN[2][48];
-	u8 Pos[2];
-	u8 IsVaild[2];
+	uint8_t PRN[2][48];
+	uint8_t CN[2][48];
+	uint8_t Pos[2];
+	uint8_t IsVaild[2];
 }GSV_InfoStruct;
 
 typedef struct
 {
-	u32 UID[3];
-	u32 MainIP;
-	u16 TCPPort;	//如果为0，表示使用UDP
-	u16 UDPPort;	//如果为0，表示使用TCP
-	u16 CustCode;
-	s8 MainURL[URL_LEN_MAX - 10];
+	uint32_t UID[3];
+	uint32_t MainIP;
+	uint16_t TCPPort;	//如果为0，表示使用UDP
+	uint16_t UDPPort;	//如果为0，表示使用TCP
+	uint16_t CustCode;
+	char MainURL[URL_LEN_MAX - 10];
 }Param_MainStruct;
 
 typedef struct
 {
-	s8 APNName[20];
-	s8 APNUser[20];
-	s8 APNPassword[20];
+	char APNName[20];
+	char APNUser[20];
+	char APNPassword[20];
 }Param_APNStruct;
 
 typedef struct
 {
-	s8 Url[URL_LEN_MAX - 12];
-	s8 Usr[12];
-	s8 Pwd[12];
+	char Url[URL_LEN_MAX - 12];
+	char Usr[12];
+	char Pwd[12];
 }Param_FtpStruct;
 
 typedef struct
 {
-	u8 Num[8];
+	uint8_t Num[8];
 }Phone_NumberStruct;
 
 typedef struct
@@ -224,39 +225,39 @@ typedef struct
 
 typedef struct
 {
-	u32 Param[15];
+	uint32_t Param[15];
 }Param_DWStruct;
 
 typedef struct
 {
 
-	u32 UpgradeIP;
-	s8 UpgradeURL[URL_LEN_MAX];
-	u16 TCPPort;	//如果为0，表示使用UDP
-	u16 UDPPort;	//如果为0，表示使用TCP
+	uint32_t UpgradeIP;
+	char UpgradeURL[URL_LEN_MAX];
+	uint16_t TCPPort;	//如果为0，表示使用UDP
+	uint16_t UDPPort;	//如果为0，表示使用TCP
 }Param_UpgradeStruct;
 
 typedef union
 {
 	Param_FtpStruct Ftp;
 	Param_UpgradeStruct Upgrade;
-	u8 pad[60];
+	uint8_t pad[60];
 }Param_UpgradeUnion;
 
 typedef struct
 {
-	u32 LYIP;
-	u16 LYTCPPort;
-	u16 LYUDPPort;
+	uint32_t LYIP;
+	uint16_t LYTCPPort;
+	uint16_t LYUDPPort;
 }Param_LYStruct;
 
 typedef struct
 {
-	u8 AuthCode[AUTH_CODE_LEN];
-	u16 ProvinceID;
-	u16 CityID;
-	u8 PlateID;
-	u8 AuthCodeLen;
+	uint8_t AuthCode[AUTH_CODE_LEN];
+	uint16_t ProvinceID;
+	uint16_t CityID;
+	uint8_t PlateID;
+	uint8_t AuthCodeLen;
 }Param_KQStruct;
 
 typedef union
@@ -268,8 +269,8 @@ typedef union
 typedef struct
 {
 	RMC_InfoStruct RMCSave;
-	u32 MileageKM;
-	u32 MileageM;
+	uint32_t MileageKM;
+	uint32_t MileageM;
 }Param_LocatStruct;
 
 typedef union
@@ -281,29 +282,29 @@ typedef union
 	Param_UserStruct UserInfo;
 	Param_NumberStruct Number;
 	Param_LocatStruct LocatInfo;
-	u8 pad[60];
+	uint8_t pad[60];
 }Param_Byte60Union;
 
 typedef struct
 {
 	Param_Byte60Union Data;
-	u32 CRC32;
+	uint32_t CRC32;
 }Param_Byte64Struct;
 
 
 
 typedef struct
 {
-	u32 Data[1024];
+	uint32_t Data[1024];
 }Section_DataStruct;
 
 typedef struct
 {
-	u32 MaigcNum;
-	u32 CRC32;
-	u32 MainVersion;
-	u32 AppVersion;
-	u32 BinFileLen;
+	uint32_t MaigcNum;
+	uint32_t CRC32;
+	uint32_t MainVersion;
+	uint32_t AppVersion;
+	uint32_t BinFileLen;
 }File_HeadStruct;
 
 typedef struct
@@ -315,10 +316,10 @@ typedef struct
 
 typedef struct 
 {
-	u32 ID;
-	u32 Param1;
-	u32 Param2;
-	u8 *pData;
+	uint32_t ID;
+	uint32_t Param1;
+	uint32_t Param2;
+	uint8_t *pData;
 }OperationReq_Struct;
 
 enum EVENTENUM
@@ -352,45 +353,45 @@ enum WORKMODEENUM
 
 typedef struct 
 {
-	u32 Var[VAR_MAX];
-	u8 IMEI[IMEI_LEN];
-	u8 IMSI[IMSI_LEN];
-	u8 ICCID[ICCID_LEN];
-	u8 State[STATE_MAX];
-	u8 Error[ERROR_MAX];
+	uint32_t Var[VAR_MAX];
+	uint8_t IMEI[IMEI_LEN];
+	uint8_t IMSI[IMSI_LEN];
+	uint8_t ICCID[ICCID_LEN];
+	uint8_t State[STATE_MAX];
+	uint8_t Error[ERROR_MAX];
 	RMC_InfoStruct RMCInfo;
 	GSV_InfoStruct GSVInfoSave;
 	Param_Byte64Struct nParam[PARAM_TYPE_MAX];
-	u32 MainVersion;
+	uint32_t MainVersion;
 }GDTM_DataStruct;
 
 typedef struct  
 {
-	u32 ComNo;
+	uint32_t ComNo;
 	volatile HANDLE hCom;
-	u32 SearchBR;
-	u32 CommBR;
-	u8 Mode;
-	u8 IsWork;
-	u8 ErrorFlag;
+	uint32_t SearchBR;
+	uint32_t CommBR;
+	uint8_t Mode;
+	uint8_t IsWork;
+	uint8_t ErrorFlag;
 }Com_CtrlStruct;
 
 typedef struct
 {
 	HANDLE hThread;
 	bool ThreadRun;
-	u8 WorkMode;
+	uint8_t WorkMode;
 	HANDLE Event[EVENT_NUM_MAX];
 	HWND mMainWnd;
-	u32 ComNoList[MAXCOMNO];
+	uint32_t ComNoList[MAXCOMNO];
 	RBuffer OperationList;
 	OperationReq_Struct OperationData[8];
 	Upgrade_FileStruct UpgradeFileBuf;
-	u32 CRC32Table[256];
+	uint32_t CRC32Table[256];
 	RBuffer UartTxBuf;
-	u8 UartTxData[DBG_BUF_MAX/10];
+	uint8_t UartTxData[DBG_BUF_MAX/10];
 	RBuffer UartRxBuf;
-	u8 UartRxData[DBG_BUF_MAX];
+	uint8_t UartRxData[DBG_BUF_MAX];
 	GDTM_DataStruct DevData;
 	Com_CtrlStruct ComCtrl;
 }SysVar_Struct;
@@ -399,9 +400,9 @@ void MyDeviceInit(void);
 void MyDeviceSetWnd(HWND);
 void MyDeviceQuit(void);
 void MyDeviceStopUSPMode(void);
-void MyDeviceStartUSPMode(u32 SearchBR, u32 CommBR);
-void MyDeviceOperationReq(u32 ID, u32 Param1, u32 Param2, u8 *pData);
+void MyDeviceStartUSPMode(uint32_t SearchBR, uint32_t CommBR);
+void MyDeviceOperationReq(uint32_t ID, uint32_t Param1, uint32_t Param2, uint8_t *pData);
 void MyDeviceStopUartMode(void);
-void MyDeviceStartUartMode(u32 ComNo, u32 BR);
-void MyDeviceUartSend(u8 *Data, u32 Len);
+void MyDeviceStartUartMode(uint32_t ComNo, uint32_t BR);
+void MyDeviceUartSend(uint8_t *Data, uint32_t Len);
 #endif

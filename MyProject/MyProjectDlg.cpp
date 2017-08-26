@@ -193,6 +193,7 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(ANT_BREAK_ERROR + VAR_MAX + STATE_MAX, 1 + 2 * LIST_VAR_COL, L"天线断路");
 	mMyShowList.SetItemText(SENSOR_ERROR + VAR_MAX + STATE_MAX, 1 + 2 * LIST_VAR_COL, L"GS故障");
 	mMyShowList.SetItemText(LOW_POWER_ERROR + VAR_MAX + STATE_MAX, 1 + 2 * LIST_VAR_COL, L"低电故障");
+	mMyShowList.SetItemText(NO_LOCAT_ERROR + VAR_MAX + STATE_MAX, 1 + 2 * LIST_VAR_COL, L"不定位故障");
 
 	mMyShowList.SetItemText(GPS_INFO_UTC_DATE_RAW, 1 + 2 * LIST_GPS_INFO_COL, L"GPS日期");
 	mMyShowList.SetItemText(GPS_INFO_UTC_TIME_RAW, 1 + 2 * LIST_GPS_INFO_COL, L"GPS时间");
@@ -288,9 +289,9 @@ BOOL CMyProjectDlg::OnInitDialog()
 	
 	Reset();
 
-// 	u8 Data[] = { 0x11, 0x01, 0x07, 0x52, 0x53, 0x36, 0x78, 0x90, 0x02, 0x42, 0x70, 0x00, 0x32, 0x01, 0x00, 0x05 };
-// 	u16 crc16 = ~CRC16Cal(Data, sizeof(Data), CRC16_START, CRC16_CCITT_GEN, 1);
-// 	gDBG.Trace("%08x", crc16);
+	u8 Data[] = { 0x01, 0x03, 0x10, 0x01, 0x00, 0x01};
+	u32 crc32 = CRC32_Cal(gSys.CRC32Table, Data, sizeof(Data), CRC32_START);
+	gDBG.Trace("%08x", crc32);
 // 	AES_CtrlStruct AES;
 // 	u8 Key[16] = { 32, 87, 47, 82, 54, 75, 63, 71, 48, 80, 65, 88, 17, 99, 45, 43 };
 // 	u8 Temp1[16] = { 0x06, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -753,7 +754,7 @@ LRESULT CMyProjectDlg::OnUpdateVersionMessage(WPARAM wParam, LPARAM lParam)
 	int i;
 	CString Str;
 	ShowData.MainVersion = gSys.DevData.MainVersion;
-	Str.Format(_T("%04x"), ShowData.MainVersion);
+	Str.Format(_T("%08x"), ShowData.MainVersion);
 	mMyShowList.SetItemText(MAIN_VERSION_RAW, 2 + 2 * LIST_OTHER_PARAM_COL, Str);
 	return 0;
 }

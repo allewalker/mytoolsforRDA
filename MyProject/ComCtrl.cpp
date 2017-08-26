@@ -137,7 +137,7 @@ void CComCtrl::SaveProfile()
 
 void CComCtrl::OnBnClickedComSwitchButton()
 {
-	u32 BR;
+	uint32_t BR;
 	// TODO:  在此添加控件通知处理程序代码
 	if (WORK_NORMAL_COM == gSys.WorkMode)
 	{
@@ -206,8 +206,8 @@ void CComCtrl::OnBnClickedUspStopButton()
 void CComCtrl::OnBnClickedComTxButton()
 {
 	// TODO:  在此添加控件通知处理程序代码
-	u8 Buf[1024];
-	u32 TxLen;
+	uint8_t Buf[1024];
+	uint32_t TxLen;
 	memset(Buf, 0, 1024);
 	TxLen = GetStrFromEdit(&mComTXEdit, Buf, 1024);
 	MyDeviceUartSend(Buf, TxLen);
@@ -217,8 +217,8 @@ void CComCtrl::OnBnClickedComTxButton()
 void CComCtrl::OnBnClickedComTxNlButton()
 {
 	// TODO:  在此添加控件通知处理程序代码
-	u8 Buf[1024];
-	u32 TxLen;
+	uint8_t Buf[1024];
+	uint32_t TxLen;
 	memset(Buf, 0, 1024);
 	TxLen = GetStrFromEdit(&mComTXEdit, Buf, 1020);
 	Buf[TxLen] = '\r';

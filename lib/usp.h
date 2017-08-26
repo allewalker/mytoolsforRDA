@@ -26,28 +26,28 @@ enum USP_ENUM
 
 typedef struct
 {
-	u16 MagicNum;
-	u16 DataSize;
-	u16 Cmd;
-	u16 CRC16;
-	u8 Qos;
-	u8 Xor;
+	uint16_t MagicNum;
+	uint16_t DataSize;
+	uint16_t Cmd;
+	uint16_t CRC16;
+	uint8_t Qos;
+	uint8_t Xor;
 
 }USP_HeadStruct;
 
 typedef struct
 {
-	u8 *InBuf;
-	u8 *OutBuf;
-	u32 InLen;
-	u32 OutLen;
-	u8 Qos;
+	uint8_t *InBuf;
+	uint8_t *OutBuf;
+	uint32_t InLen;
+	uint32_t OutLen;
+	uint8_t Qos;
 }USP_AnalyzeStruct;
 
-void USP_SetHead(USP_AnalyzeStruct *USP, u16 Cmd, u8 Qos);
-s32 USP_ResultTx(USP_AnalyzeStruct *USP, u16 Cmd, u16 Result);
-s32 USP_RWUIDTx(USP_AnalyzeStruct *USP, u32 *UID);
-s32 USP_RWParamTx(USP_AnalyzeStruct *USP, u8 Sn, u8 *Data, u32 Len);
-s32 USP_DownloadFileTx(USP_AnalyzeStruct *USP, u8 *Data, u32 Size);
-s32 USP_SetBRTx(USP_AnalyzeStruct *USP, u32 NewBR);
+void USP_SetHead(USP_AnalyzeStruct *USP, uint16_t Cmd, uint8_t Qos);
+int32_t USP_ResultTx(USP_AnalyzeStruct *USP, uint16_t Cmd, uint16_t Result);
+int32_t USP_RWUIDTx(USP_AnalyzeStruct *USP, uint32_t *UID);
+int32_t USP_RWParamTx(USP_AnalyzeStruct *USP, uint8_t Sn, uint8_t *Data, uint32_t Len);
+int32_t USP_DownloadFileTx(USP_AnalyzeStruct *USP, uint8_t *Data, uint32_t Size);
+int32_t USP_SetBRTx(USP_AnalyzeStruct *USP, uint32_t NewBR);
 #endif

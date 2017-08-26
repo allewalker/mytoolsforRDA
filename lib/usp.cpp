@@ -3,7 +3,7 @@
 #include "usp.h"
 #include "mydevice.h"
 
-void USP_SetHead(USP_AnalyzeStruct *USP, u16 Cmd, u8 Qos)
+void USP_SetHead(USP_AnalyzeStruct *USP, uint16_t Cmd, uint8_t Qos)
 {
 	USP_HeadStruct Head;
 	Head.MagicNum = USP_MAGIC_NUM;
@@ -18,14 +18,14 @@ void USP_SetHead(USP_AnalyzeStruct *USP, u16 Cmd, u8 Qos)
 		Head.CRC16 = 0;
 	}
 	Head.Qos = Qos;
-	Head.Xor = XorCheck((u8 *)&Head, sizeof(USP_HeadStruct)-1, 0);
+	Head.Xor = XorCheck((uint8_t *)&Head, sizeof(USP_HeadStruct)-1, 0);
 	memcpy(USP->OutBuf, &Head, sizeof(USP_HeadStruct));
 	USP->OutLen += sizeof(USP_HeadStruct);
 }
 
 
 /*-----------------------------------------------------*/
-s32 USP_ResultTx(USP_AnalyzeStruct *USP, u16 Cmd, u16 Result)
+int32_t USP_ResultTx(USP_AnalyzeStruct *USP, uint16_t Cmd, uint16_t Result)
 {
 	memcpy(USP->OutBuf + sizeof(USP_HeadStruct), &Cmd, 2);
 	memcpy(USP->OutBuf + sizeof(USP_HeadStruct)+2, &Result, 2);
@@ -34,7 +34,7 @@ s32 USP_ResultTx(USP_AnalyzeStruct *USP, u16 Cmd, u16 Result)
 	return 0;
 }
 
-s32 USP_RWUIDTx(USP_AnalyzeStruct *USP, u32 *UID)
+int32_t USP_RWUIDTx(USP_AnalyzeStruct *USP, uint32_t *UID)
 {
 	if (UID)
 	{
@@ -49,7 +49,7 @@ s32 USP_RWUIDTx(USP_AnalyzeStruct *USP, u32 *UID)
 	return 0;
 }
 
-// s32 USP_UploadUIDTx(USP_AnalyzeStruct *USP)
+// int32_t USP_UploadUIDTx(USP_AnalyzeStruct *USP)
 // {
 // 	memcpy(USP->OutBuf + sizeof(USP_HeadStruct), gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID, sizeof(gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID));
 // 	USP->OutLen = sizeof(gSys.DevData.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID);
@@ -57,16 +57,16 @@ s32 USP_RWUIDTx(USP_AnalyzeStruct *USP, u32 *UID)
 // 	return 0;
 // }
 
-// s32 USP_ReadVarTx(USP_AnalyzeStruct *USP)
+// int32_t USP_ReadVarTx(USP_AnalyzeStruct *USP)
 // {
 // 	USP->OutLen = 0;
 // 	USP_SetHead(USP, USP_CMD_READ_VAR, 1);
 // 	return 0;
 // }
 // 
-// s32 USP_UploadVarTx(USP_AnalyzeStruct *USP)
+// int32_t USP_UploadVarTx(USP_AnalyzeStruct *USP)
 // {
-// 	u32 Pos = sizeof(USP_HeadStruct);
+// 	uint32_t Pos = sizeof(USP_HeadStruct);
 // 
 // 	memcpy(USP->OutBuf + Pos, &gSys.DevData.Var[0], sizeof(gSys.DevData.Var));
 // 	Pos += sizeof(gSys.DevData.Var);
@@ -96,7 +96,7 @@ s32 USP_RWUIDTx(USP_AnalyzeStruct *USP, u32 *UID)
 // 	return 0;
 // }
 
-s32 USP_RWParamTx(USP_AnalyzeStruct *USP, u8 Sn, u8 *Data, u32 Len)
+int32_t USP_RWParamTx(USP_AnalyzeStruct *USP, uint8_t Sn, uint8_t *Data, uint32_t Len)
 {
 	USP->OutBuf[sizeof(USP_HeadStruct)] = Sn;
 	if (Data)
@@ -118,7 +118,7 @@ s32 USP_RWParamTx(USP_AnalyzeStruct *USP, u8 Sn, u8 *Data, u32 Len)
 	return 0;
 }
 
-s32 USP_DownloadFileTx(USP_AnalyzeStruct *USP, u8 *Data, u32 Size)
+int32_t USP_DownloadFileTx(USP_AnalyzeStruct *USP, uint8_t *Data, uint32_t Size)
 {
 	memcpy(USP->OutBuf + sizeof(USP_HeadStruct), &Size, 4);
 	if (Data)
@@ -134,7 +134,7 @@ s32 USP_DownloadFileTx(USP_AnalyzeStruct *USP, u8 *Data, u32 Size)
 	return 0;
 }
 
-s32 USP_SetBRTx(USP_AnalyzeStruct *USP, u32 NewBR)
+int32_t USP_SetBRTx(USP_AnalyzeStruct *USP, uint32_t NewBR)
 {
 	memcpy(USP->OutBuf + sizeof(USP_HeadStruct), &NewBR, 4);
 	USP->OutLen = 4;
@@ -142,27 +142,27 @@ s32 USP_SetBRTx(USP_AnalyzeStruct *USP, u32 NewBR)
 	return 0;
 }
 
-// s32 USP_ReadVersionTx(USP_AnalyzeStruct *USP)
+// int32_t USP_ReadVersionTx(USP_AnalyzeStruct *USP)
 // {
 // 	USP->OutLen = 0;
 // 	USP_SetHead(USP, USP_CMD_READ_VERSION, 1);
 // 	return 0;
 // }
 // 
-// s32 USP_UploadVersionTx(USP_AnalyzeStruct *USP)
+// int32_t USP_UploadVersionTx(USP_AnalyzeStruct *USP)
 // {
 // 	USP->OutLen = 0;
 // 	return 0;
 // }
 // 
-// s32 USP_ReadTraceTx(USP_AnalyzeStruct *USP)
+// int32_t USP_ReadTraceTx(USP_AnalyzeStruct *USP)
 // {
 // 	USP->OutLen = 0;
 // 	USP_SetHead(USP, USP_CMD_READ_TRACE, 1);
 // 	return 0;
 // }
 // 
-// s32 USP_UploadTraceTx(USP_AnalyzeStruct *USP)
+// int32_t USP_UploadTraceTx(USP_AnalyzeStruct *USP)
 // {
 // 	USP->OutLen = 4;
 // 	memset(USP->OutBuf + sizeof(USP_HeadStruct), 0, 4);

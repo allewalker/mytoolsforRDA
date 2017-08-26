@@ -98,12 +98,12 @@ void CDevUpgrade::CreateUpgradeFile()
 	{
 		//读取烧录文件并存到文件缓存中
 		CFile File(hFile);
-		File.Write((u8 *)&gSys.UpgradeFileBuf.Head, sizeof(File_HeadStruct));
+		File.Write((uint8_t *)&gSys.UpgradeFileBuf.Head, sizeof(File_HeadStruct));
 		for (SectionPos = 0; SectionPos < gSys.UpgradeFileBuf.Head.BinFileLen; SectionPos++)
 		{
 			for (i = 0; i < 1024; i++)
 			{
-				File.Write((u8 *)&gSys.UpgradeFileBuf.SectionData[SectionPos].Data[i], 4);
+				File.Write((uint8_t *)&gSys.UpgradeFileBuf.SectionData[SectionPos].Data[i], 4);
 			}
 		}
 		File.Close();
@@ -195,9 +195,9 @@ void CDevUpgrade::OnBnClickedMakeBinButton()
 {
 	// TODO:  在此添加控件通知处理程序代码
 	uint32_t dwReadLen, i, j;
-	u8 FileData[128], FindEnd, FindStart;
-	u32 dwTemp;
-	u32 SectionPos, CachePos;
+	uint8_t FileData[128], FindEnd, FindStart;
+	uint32_t dwTemp;
+	uint32_t SectionPos, CachePos;
 	GetHexFromEdit(&mMainVersionEdit, &gSys.UpgradeFileBuf.Head.MainVersion);
 	GetIntFromEdit(&mUpgradeVersionEdit, &gSys.UpgradeFileBuf.Head.AppVersion);
 	if (!gSys.UpgradeFileBuf.Head.MainVersion || !gSys.UpgradeFileBuf.Head.AppVersion)
@@ -301,7 +301,7 @@ void CDevUpgrade::OnBnClickedMakeBinButton()
 		{
 			gSys.UpgradeFileBuf.Head.MaigcNum = RDA_UPGRADE_MAGIC_NUM;
 			gSys.UpgradeFileBuf.Head.BinFileLen = SectionPos;
-			gSys.UpgradeFileBuf.Head.CRC32 = CRC32_Cal(gSys.CRC32Table, (u8 *)&gSys.UpgradeFileBuf.SectionData[0].Data[0], gSys.UpgradeFileBuf.Head.BinFileLen * 4096, CRC32_START);
+			gSys.UpgradeFileBuf.Head.CRC32 = CRC32_Cal(gSys.CRC32Table, (uint8_t *)&gSys.UpgradeFileBuf.SectionData[0].Data[0], gSys.UpgradeFileBuf.Head.BinFileLen * 4096, CRC32_START);
 			gDBG.Trace("%s %u:%08x %u %08x %u\r\n", __FUNCTION__, __LINE__, gSys.UpgradeFileBuf.Head.CRC32, gSys.UpgradeFileBuf.Head.BinFileLen, gSys.UpgradeFileBuf.Head.MainVersion,
 				gSys.UpgradeFileBuf.Head.AppVersion);
 		}
@@ -315,10 +315,10 @@ void CDevUpgrade::OnBnClickedMakeBinButton()
 void CDevUpgrade::OnBnClickedMakeUpgradeBinButton()
 {
 	// TODO:  在此添加控件通知处理程序代码
-	u8 *OrgData;
-	u32 OrgFileLen = 0;
+	uint8_t *OrgData;
+	uint32_t OrgFileLen = 0;
 	DWORD CopyLen;
-	u32 DummyLen;
+	uint32_t DummyLen;
 	File_HeadStruct Head;
 	Head.MaigcNum = 0;
 	Head.MainVersion = 0;
@@ -336,7 +336,7 @@ void CDevUpgrade::OnBnClickedMakeUpgradeBinButton()
 	{
 		CFile File(hFile);
 		OrgFileLen = File.GetLength();
-		OrgData = (u8 *)malloc(OrgFileLen);
+		OrgData = (uint8_t *)malloc(OrgFileLen);
 		ReadFile(hFile, OrgData, OrgFileLen, &CopyLen, NULL);
 		CloseHandle(hFile);
 		Head.BinFileLen = OrgFileLen;
@@ -358,7 +358,7 @@ void CDevUpgrade::OnBnClickedMakeUpgradeBinButton()
 	{
 		//读取烧录文件并存到文件缓存中
 		CFile File2(hFile);
-		File2.Write((u8 *)&Head, sizeof(File_HeadStruct));
+		File2.Write((uint8_t *)&Head, sizeof(File_HeadStruct));
 		CopyLen = 0;
 		gDBG.Trace("%s %u:%08x %u %08x\r\n", __FUNCTION__, __LINE__, Head.CRC32, Head.BinFileLen, Head.MainVersion);
 		while (CopyLen < Head.BinFileLen)

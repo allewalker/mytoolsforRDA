@@ -39,10 +39,10 @@ static void MyDeviceChangeWorkMode(void)
 	}
 }
 
-static s32 WaitForEvent(u32 To)
+static int32_t WaitForEvent(uint32_t To)
 {
 	DWORD Result;
-	u32 EventID = 0;
+	uint32_t EventID = 0;
 	Result = WaitForMultipleObjects(EVENT_WAIT_NUM, gSys.Event, FALSE, To);
 	switch (Result)
 	{
@@ -62,19 +62,19 @@ static s32 WaitForEvent(u32 To)
 	return EventID;
 }
 
-static s32 WaitForSleep(u32 To)
+static int32_t WaitForSleep(uint32_t To)
 {
 	ResetEvent(gSys.Event[EVENT_COM_RX]);
 	WaitForSingleObject(gSys.Event[EVENT_COM_RX], To);
 	return 0;
 }
 
-static s32 MyDeviceUSPRx(u8 *Buf, u32 BufLen, u32 To)
+static int32_t MyDeviceUSPRx(uint8_t *Buf, uint32_t BufLen, uint32_t To)
 {
-	u32 PassTime = 0;
-	u32 RxLen = 0;//总共获取到的字节数
-	u32 Result;
-	u32 PackLen = 0;
+	uint32_t PassTime = 0;
+	uint32_t RxLen = 0;//总共获取到的字节数
+	uint32_t Result;
+	uint32_t PackLen = 0;
 	DWORD Error = 0;
 	USP_HeadStruct Head;
 	gSys.ComCtrl.ErrorFlag = 0;
@@ -141,19 +141,19 @@ static s32 MyDeviceUSPRx(u8 *Buf, u32 BufLen, u32 To)
 	return -1;
 }
 
-static s32 MyDeviceUSPProc(u16 Cmd, u8 *pData, u32 Len, u32 Param, u32 To)
+static int32_t MyDeviceUSPProc(uint16_t Cmd, uint8_t *pData, uint32_t Len, uint32_t Param, uint32_t To)
 {
-	u8 RxBuf[USP_LEN_MAX];
-	u8 TxBuf[USP_LEN_MAX];
-	s32 Result;
-	u32 Pos;
-	u32 UID[3];
+	uint8_t RxBuf[USP_LEN_MAX];
+	uint8_t TxBuf[USP_LEN_MAX];
+	int32_t Result;
+	uint32_t Pos;
+	uint32_t UID[3];
 	USP_HeadStruct Head;
 	USP_AnalyzeStruct USP;
-	u16 LastCmd;
-	u16 LastResult;
-	u8 *DataStart;
-	u8 ParamSn;
+	uint16_t LastCmd;
+	uint16_t LastResult;
+	uint8_t *DataStart;
+	uint8_t ParamSn;
 	USP.OutBuf = TxBuf;
 	USP.OutLen = 0;
 	switch (Cmd)
@@ -201,9 +201,9 @@ USP_RX:
 		memcpy(&Head, RxBuf, sizeof(Head));
 		if (Head.DataSize)
 		{
-			if (Head.CRC16 != (u16)~CRC16Cal(RxBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0))
+			if (Head.CRC16 != (uint16_t)~CRC16Cal(RxBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0))
 			{
-				gDBG.Trace("%s %u:%u crc %04x %04x\r\n", __FUNCTION__, __LINE__, Head.Cmd, Head.CRC16, (u16)~CRC16Cal(RxBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0));
+				gDBG.Trace("%s %u:%u crc %04x %04x\r\n", __FUNCTION__, __LINE__, Head.Cmd, Head.CRC16, (uint16_t)~CRC16Cal(RxBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0));
 				return -1;
 			}
 			DataStart = &RxBuf[sizeof(Head)];
@@ -323,13 +323,13 @@ USP_RX:
 
 static void MyDeviceAutoMode(void)
 {
-	u32 dwLen;
-	u32 TxLen;
-	u32 FinishLen;
-	s32 Result;
-	u8 *DataStart;
-	u8 Retry;
-	u32 i;
+	uint32_t dwLen;
+	uint32_t TxLen;
+	uint32_t FinishLen;
+	int32_t Result;
+	uint8_t *DataStart;
+	uint8_t Retry;
+	uint32_t i;
 	OperationReq_Struct Req;
 	//首先检查是否已经扫描到设备
 	if (gSys.ComCtrl.hCom)
@@ -339,7 +339,7 @@ static void MyDeviceAutoMode(void)
 			while (gSys.OperationList.Len)
 			{
 				gSys.ComCtrl.ErrorFlag = 0;
-				ReadRBuffer(&gSys.OperationList, (u8 *)&Req, 1);
+				ReadRBuffer(&gSys.OperationList, (uint8_t *)&Req, 1);
 				switch (Req.ID)
 				{
 				case REQ_RESET:
@@ -348,7 +348,7 @@ static void MyDeviceAutoMode(void)
 					WaitForSleep(10);
 					goto ERROR_OUT;
 				case REQ_SET_PARAM:
-					Result = MyDeviceUSPProc(USP_CMD_RW_PARAM, (u8 *)Req.pData, Req.Param1, Req.Param2, USP_COM_TO);
+					Result = MyDeviceUSPProc(USP_CMD_RW_PARAM, (uint8_t *)Req.pData, Req.Param1, Req.Param2, USP_COM_TO);
 					if (Result != USP_CMD_UPLOAD_PARAM)
 					{
 						gDBG.Trace("%s %u:set param fail!\r\n", __FUNCTION__, __LINE__);
@@ -358,7 +358,7 @@ static void MyDeviceAutoMode(void)
 						delete[] Req.pData;
 					}
 				case REQ_SET_UID:
-					Result = MyDeviceUSPProc(USP_CMD_RW_UID, (u8 *)Req.pData, Req.Param1, Req.Param2, USP_COM_TO);
+					Result = MyDeviceUSPProc(USP_CMD_RW_UID, (uint8_t *)Req.pData, Req.Param1, Req.Param2, USP_COM_TO);
 					if (Result != USP_CMD_UPLOAD_UID)
 					{
 						gDBG.Trace("%s %u:set uid fail!\r\n", __FUNCTION__, __LINE__);
@@ -374,7 +374,7 @@ static void MyDeviceAutoMode(void)
 					if (Result >= 0)
 					{
 						FinishLen = 0;
-						DataStart = (u8 *)&gSys.UpgradeFileBuf;
+						DataStart = (uint8_t *)&gSys.UpgradeFileBuf;
 						while (FinishLen < dwLen)
 						{
 							if ((dwLen - FinishLen) > 256)
@@ -513,19 +513,19 @@ ERROR_OUT:
 	{
 		CloseHandle(gSys.ComCtrl.hCom);
 		gSys.ComCtrl.hCom = NULL;
-		InitRBuffer(&gSys.OperationList, (u8 *)gSys.OperationData, 8, sizeof(OperationReq_Struct));
+		InitRBuffer(&gSys.OperationList, (uint8_t *)gSys.OperationData, 8, sizeof(OperationReq_Struct));
 	}
 }
 
 static DWORD WINAPI MyDeviceThread(LPVOID pData)
 {
-	s32 iRet;
+	int32_t iRet;
 	COMSTAT  Stat;
 	DWORD Error, ReadLen, DummyLen;
 	OVERLAPPED Rol;
-	u8 Buf[DBG_BUF_MAX];
-	u32 RxLen;
-	u32 TxLen;
+	uint8_t Buf[DBG_BUF_MAX];
+	uint32_t RxLen;
+	uint32_t TxLen;
 	//底层数据交换线程启动
 	gSys.ThreadRun = true;
 	gSys.WorkMode = WORK_IDLE;
@@ -598,11 +598,11 @@ static DWORD WINAPI MyDeviceThread(LPVOID pData)
 
 void MyDeviceInit(void)
 {
-	u8 i;
+	uint8_t i;
 	memset(&gSys, 0, sizeof(gSys));
-	InitRBuffer(&gSys.OperationList, (u8 *)gSys.OperationData, 8, sizeof(OperationReq_Struct));
-	InitRBuffer(&gSys.UartTxBuf, (u8 *)gSys.UartTxData, DBG_BUF_MAX / 10, 1);
-	InitRBuffer(&gSys.UartRxBuf, (u8 *)gSys.UartRxData, DBG_BUF_MAX, 1);
+	InitRBuffer(&gSys.OperationList, (uint8_t *)gSys.OperationData, 8, sizeof(OperationReq_Struct));
+	InitRBuffer(&gSys.UartTxBuf, (uint8_t *)gSys.UartTxData, DBG_BUF_MAX / 10, 1);
+	InitRBuffer(&gSys.UartRxBuf, (uint8_t *)gSys.UartRxData, DBG_BUF_MAX, 1);
 	for (i = 0; i < EVENT_NUM_MAX;i++)
 	{
 		gSys.Event[i] = CreateEvent(NULL , TRUE, FALSE, NULL);
@@ -627,7 +627,7 @@ void MyDeviceStopUSPMode(void)
 	gSys.ComCtrl.IsWork = 0;
 	SetEvent(gSys.Event[EVENT_MODE_SW]);
 }
-void MyDeviceStartUSPMode(u32 SearchBR, u32 CommBR)
+void MyDeviceStartUSPMode(uint32_t SearchBR, uint32_t CommBR)
 {
 	gSys.ComCtrl.IsWork = 1;
 	gSys.ComCtrl.ComNo = 0;
@@ -636,14 +636,14 @@ void MyDeviceStartUSPMode(u32 SearchBR, u32 CommBR)
 	gSys.ComCtrl.CommBR = CommBR;
 	SetEvent(gSys.Event[EVENT_MODE_SW]);
 }
-void MyDeviceOperationReq(u32 ID, u32 Param1, u32 Param2, u8 *pData)
+void MyDeviceOperationReq(uint32_t ID, uint32_t Param1, uint32_t Param2, uint8_t *pData)
 {
 	OperationReq_Struct Req;
 	Req.ID = ID;
 	Req.Param1 = Param1;
 	Req.Param2 = Param2;
 	Req.pData = pData;
-	WriteRBufferForce(&gSys.OperationList, (u8 *)&Req, 1);
+	WriteRBufferForce(&gSys.OperationList, (uint8_t *)&Req, 1);
 	SetEvent(gSys.Event[EVENT_OPERATION_REQ]);
 }
 void MyDeviceStopUartMode(void)
@@ -651,7 +651,7 @@ void MyDeviceStopUartMode(void)
 	gSys.ComCtrl.IsWork = 0;
 	SetEvent(gSys.Event[EVENT_MODE_SW]);
 }
-void MyDeviceStartUartMode(u32 ComNo, u32 BR)
+void MyDeviceStartUartMode(uint32_t ComNo, uint32_t BR)
 {
 	gSys.ComCtrl.IsWork = 1;
 	gSys.ComCtrl.Mode = COM_MODE_NORMAL;
@@ -659,7 +659,7 @@ void MyDeviceStartUartMode(u32 ComNo, u32 BR)
 	gSys.ComCtrl.CommBR = BR;
 	SetEvent(gSys.Event[EVENT_MODE_SW]);
 }
-void MyDeviceUartSend(u8 *Data, u32 Len)
+void MyDeviceUartSend(uint8_t *Data, uint32_t Len)
 {
 	if (gSys.WorkMode == WORK_NORMAL_COM)
 	{

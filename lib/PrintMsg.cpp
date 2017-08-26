@@ -30,7 +30,7 @@ void CPrintMsg::Trace(const char* format, ...)
 		hInSem = CreateSemaphore(NULL, 1, 1, NULL);
 	}
 	WaitForSingleObject(hInSem, INFINITE);
-	WriteRBufferForce(&m_MsgBuffer, (u8 *)tmp_buffer, ret);
+	WriteRBufferForce(&m_MsgBuffer, (uint8_t *)tmp_buffer, ret);
 	ReleaseSemaphore(hInSem, 1, NULL);
 	if (mMainWnd)
 	{
@@ -38,10 +38,10 @@ void CPrintMsg::Trace(const char* format, ...)
 	}
 }
 
-void CPrintMsg::HexTrace(u8 *Data, u32 Len)
+void CPrintMsg::HexTrace(uint8_t *Data, uint32_t Len)
 {
 	unsigned int ret, i;
-	s8 tmp[4];
+	char tmp[4];
 	
 	if (m_MsgBuffer.Data != m_DataBuf)
 	{
@@ -52,9 +52,9 @@ void CPrintMsg::HexTrace(u8 *Data, u32 Len)
 	for (i = 0; i < Len; i++)
 	{
 		ret = sprintf(tmp, "%02x ", Data[i]);
-		WriteRBufferForce(&m_MsgBuffer, (u8 *)tmp, ret);
+		WriteRBufferForce(&m_MsgBuffer, (uint8_t *)tmp, ret);
 	}
-	WriteRBufferForce(&m_MsgBuffer, (u8 *)"\r\n", 2);
+	WriteRBufferForce(&m_MsgBuffer, (uint8_t *)"\r\n", 2);
 
 	
 	
@@ -65,10 +65,10 @@ void CPrintMsg::HexTrace(u8 *Data, u32 Len)
 	}
 }
 
-void CPrintMsg::DecTrace(u8 *Data, u32 Len)
+void CPrintMsg::DecTrace(uint8_t *Data, uint32_t Len)
 {
 	unsigned int ret, i;
-	s8 tmp[5];
+	char tmp[5];
 
 	if (m_MsgBuffer.Data != m_DataBuf)
 	{
@@ -79,9 +79,9 @@ void CPrintMsg::DecTrace(u8 *Data, u32 Len)
 	for (i = 0; i < Len; i++)
 	{
 		ret = sprintf(tmp, "%03d ", Data[i]);
-		WriteRBufferForce(&m_MsgBuffer, (u8 *)tmp, ret);
+		WriteRBufferForce(&m_MsgBuffer, (uint8_t *)tmp, ret);
 	}
-	WriteRBufferForce(&m_MsgBuffer, (u8 *)"\r\n", 2);
+	WriteRBufferForce(&m_MsgBuffer, (uint8_t *)"\r\n", 2);
 
 	ReleaseSemaphore(hInSem, 1, NULL);
 	if (mMainWnd)

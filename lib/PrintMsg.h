@@ -16,8 +16,8 @@ public:
 	
 	HANDLE hInSem = NULL;
 	void Trace(const char* format, ...);
-	void HexTrace(u8 *Data, u32 Len);
-	void DecTrace(u8 *Data, u32 Len);
+	void HexTrace(uint8_t *Data, uint32_t Len);
+	void DecTrace(uint8_t *Data, uint32_t Len);
 	void SetWnd(HWND);
 };
 
