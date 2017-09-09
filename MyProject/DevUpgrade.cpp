@@ -85,7 +85,7 @@ void CDevUpgrade::CreateUpgradeFile()
 {
 	uint32_t SectionPos, i;
 	CString Str;
-	Str.Format(_T("gl_%08x_%u.bin"), gSys.UpgradeFileBuf.Head.MainVersion, gSys.UpgradeFileBuf.Head.AppVersion);
+	Str.Format(_T("%08x_%u.bin"), gSys.UpgradeFileBuf.Head.MainVersion, gSys.UpgradeFileBuf.Head.AppVersion);
 	HANDLE hFile = CreateFile((LPCTSTR)Str,
 		GENERIC_WRITE, FILE_SHARE_WRITE,
 		NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);

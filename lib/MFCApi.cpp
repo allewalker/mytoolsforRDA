@@ -86,7 +86,7 @@ void ProfileWSInt(LPCWSTR FileName, LPCWSTR APPName, LPCWSTR ItemName, uint32_t 
 
 bool OpenFilePath(CString DefaultPath, CString &mFilePathStr)
 {
-	CFileDialog dlgFile(TRUE, NULL, NULL, 6, L"BIN Files(*.bin)|*.bin|All Files(*.*)|*.*|");
+	CFileDialog dlgFile(TRUE, NULL, NULL, 6, L"Lod Files(*.lod)|*.lod|BIN Files(*.bin)|*.bin|All Files(*.*)|*.*|");
 	CString fileName;
 	TCHAR CurrentPath[MAX_PATH];
 	GetCurrentDirectory(MAX_PATH, CurrentPath);
