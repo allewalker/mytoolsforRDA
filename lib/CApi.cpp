@@ -138,7 +138,9 @@ uint32_t StrToUint(const uint8_t *Src)
 /************************************************************************/
 uint8_t IsLeapYear(uint32_t Year)
 {
-	if ((((Year % 4) == 0) && ((Year % 100) != 0)) || ((Year % 400) == 0))
+	if ((Year % 400) == 0)
+		return 1;
+	if ((((Year % 4) == 0) && (Year % 100) != 0))
 		return 1;
 	else
 		return 0;
@@ -148,11 +150,28 @@ LongInt UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 {
 	uint32_t DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
 	LongInt DYear, DDay, DSec;
-
+	uint32_t Year100, Year400;
 	DYear = Date->Year - 1970;
-	if (DYear)	//1970年以后,1972是第一个闰年
+	if (DYear)	//1970年以后,1972是第一个闰年,2100年是非闰年
 	{
-		DDay = DYear * 365 + ((DYear + 2) / 4) - ((DYear + 2) / 100) + ((DYear + 2) / 400) + DayTable[IsLeapYear(Date->Year)][Date->Mon - 1] + (Date->Day - 1);
+		//DDay = DYear * 365 + ((DYear + 2) / 4) - ((DYear + 2) / 100) + ((DYear + 2) / 400)
+		DDay = DYear * 365 + ((DYear + 2) / 4) + DayTable[IsLeapYear(Date->Year)][Date->Mon - 1] + (Date->Day - 1);
+		if (IsLeapYear(Date->Year))
+		{
+			DDay--;
+		}
+		if (Date->Year >= 2100)
+		{
+			Year100 = Date->Year - 2100;
+			DDay -= (1 + Year100 / 100);
+			if (Date->Year > 2400)
+			{
+				Year100 = Date->Year - 2400;
+				DDay += 1 + Year100 / 400;
+			}
+
+		}
+
 	}
 	else
 	{
@@ -612,4 +631,25 @@ uint32_t TransferUnpack(uint8_t Flag, uint8_t Code, uint8_t F1, uint8_t F2, uint
 		}
 	}
 	return RxLen;
+}
+
+static double rad(double d)
+{
+   return d * 3.1415926535898 / 180.0;
+}
+
+double GPS_Distance(double lat1, double lat2, double lgt1, double lgt2)
+{
+	double radLat1 = rad(lat1);
+	double radLat2 = rad(lat2);
+	double a = (lat1 > lat2) ? (lat1 - lat2) : (lat2 - lat1);
+	double b = (lgt1 > lgt2) ? (lgt1 - lgt2) : (lgt2 - lgt1);
+	double EARTH_RADIUS = 6378.137;
+	double s;
+
+	a = rad(a);
+	b = rad(b);
+	s = 2 * asin(sqrt(pow(sin(a / 2), 2) + cos(radLat1)*cos(radLat2)*pow(sin(b / 2), 2)));
+	s = s * EARTH_RADIUS * 1000;
+	return s;
 }

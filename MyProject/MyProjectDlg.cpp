@@ -288,10 +288,25 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(CAR_OWN0_RAW + 6, 1 + 2 * LIST_OTHER_PARAM_COL, L"³µÖ÷ºÅÂë7");
 	
 	Reset();
+	Date_UserDataStruct Date, Date2;
+	Time_UserDataStruct Time, Time2;
+	uint64_t Tamp;
+	Date.Year = 2101;
+	Date.Mon = 12;
+	Date.Day = 31;
+	Time.Hour = 23;
+	Time.Min = 59;
+	Time.Sec = 59;
+	Tamp = UTC2Tamp(&Date, &Time) - 8 * 3600;
+	gDBG.Trace("%u\r\n", Tamp);
+	Tamp2UTC(Tamp + 1, &Date2, &Time2, 0);
+	gDBG.Trace("%d %d %d %d %d %d\r\n", Date2.Year, Date2.Mon, Date2.Day, Time2.Hour, Time2.Min, Time2.Sec);
+// 	double lat1 = 38.694290, lgt1 = 179.0, lat2 = 38.694290, lgt2 = -179.0;
+// 	gDBG.Trace("%f", GPS_Distance(lat1, lat2, lgt1, lgt2));
 
-	u8 Data[] = { 0x01, 0x03, 0x10, 0x01, 0x00, 0x01};
-	u32 crc32 = CRC32_Cal(gSys.CRC32Table, Data, sizeof(Data), CRC32_START);
-	gDBG.Trace("%08x", crc32);
+// 	u8 Data[] = { 0x01, 0x03, 0x10, 0x01, 0x00, 0x01};
+// 	u32 crc32 = CRC32_Cal(gSys.CRC32Table, Data, sizeof(Data), CRC32_START);
+// 	gDBG.Trace("%08x", crc32);
 // 	AES_CtrlStruct AES;
 // 	u8 Key[16] = { 32, 87, 47, 82, 54, 75, 63, 71, 48, 80, 65, 88, 17, 99, 45, 43 };
 // 	u8 Temp1[16] = { 0x06, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };

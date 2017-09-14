@@ -103,5 +103,8 @@ uint32_t WriteRBufferForce(RBuffer *Buf, uint8_t *Data, uint32_t Len);
 uint32_t TransferUnpack(uint8_t Flag, uint8_t Code, uint8_t F1, uint8_t F2, uint8_t *InBuf, uint32_t Len, uint8_t *OutBuf);
 uint32_t TransferPack(uint8_t Flag, uint8_t Code, uint8_t F1, uint8_t F2, uint8_t *InBuf, uint32_t Len, uint8_t *OutBuf);
 unsigned int CmdParseParam(char* pStr, CmdParam *CmdParam);
+double GPS_Distance(double lat1, double lat2, double lgt1, double lgt2);
+LongInt UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time);
+uint32_t Tamp2UTC(LongInt Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, uint32_t LastDDay);
 #endif 
 
