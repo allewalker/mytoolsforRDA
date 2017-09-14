@@ -164,7 +164,7 @@ LongInt UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 		{
 			Year100 = Date->Year - 2100;
 			DDay -= (1 + Year100 / 100);
-			if (Date->Year > 2400)
+			if (Date->Year >= 2400)
 			{
 				Year100 = Date->Year - 2400;
 				DDay += 1 + Year100 / 400;
@@ -180,33 +180,62 @@ LongInt UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 	DSec = DDay * 86400 + Time->Hour * 3600 + Time->Min * 60 + Time->Sec;
 	return DSec;
 }
-
+#define YEAR_1_DAY 365
+#define YEAR_2_DAY 730
+#define YEAR_3_DAY 1096
+#define YEAR_4_DAY	1461
+#define YEAR_100_DAY 36524
+#define YEAR_400_DAY 146097
 uint32_t Tamp2UTC(LongInt Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, uint32_t LastDDay)
 {
 	uint32_t DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
-	uint32_t DYear, LDYear, i, LeapFlag;
+	uint32_t DYear, LDYear, i, LeapFlag, Temp;
 	uint32_t DDay;
 	DDay = Sec / 86400;
 
 	if (DDay != LastDDay)
 	{
+		DYear = 0;
 		Time->Week = (4 + DDay) % 7;
-		LDYear = DDay / 365;
-		if (DDay >= (LDYear * 365 + ((LDYear + 2) / 4) - ((LDYear + 2) / 100) + ((LDYear + 2) / 400)))
+		if (DDay >= YEAR_400_DAY)
 		{
-			DYear = LDYear;
-		}
-		else
-		{
-			DYear = LDYear - 1;
-		}
-		Date->Year = DYear + 1970;
-		LeapFlag = IsLeapYear(DYear + 1970);
-		if (Date->Year > 1970)
-		{
-			DDay -= (DYear * 365 + ((DYear + 2) / 4) - ((DYear + 2) / 100) + ((DYear + 2) / 400));
+			Temp = DDay / YEAR_400_DAY;
+			DYear = Temp * 400;
+			DDay -= Temp * YEAR_400_DAY;
 		}
 
+		if (DDay >= YEAR_100_DAY)
+		{
+			Temp = DDay / YEAR_100_DAY;
+			DYear += Temp * 100;
+			DDay -= Temp * YEAR_100_DAY;
+		}
+
+		if (DDay >= YEAR_4_DAY)
+		{
+			Temp = DDay / YEAR_4_DAY;
+			DYear += Temp * 4;
+			DDay -= Temp * YEAR_4_DAY;
+		}
+
+		if (DDay >= YEAR_3_DAY)
+		{
+			DYear += 3;
+			DDay -= YEAR_3_DAY;
+		}
+		else if (DDay >= YEAR_2_DAY)
+		{
+			DYear += 2;
+			DDay -= YEAR_2_DAY;
+		}
+		else if (DDay >= YEAR_1_DAY)
+		{
+			DYear += 1;
+			DDay -= YEAR_1_DAY;
+		}
+
+		Date->Year = DYear + 1970;
+		LeapFlag = IsLeapYear(Date->Year);
 		Date->Mon = 12;
 		for (i = 1; i < 12; i++)
 		{
