@@ -3,7 +3,7 @@
 #include "PrintMsg.h"
 #include "usp.h"
 SysVar_Struct gSys;
-#define USP_COM_TO (200)
+#define USP_COM_TO (500)
 
 static void MyDeviceChangeWorkMode(void)
 {
@@ -188,10 +188,10 @@ static int32_t MyDeviceUSPProc(uint16_t Cmd, uint8_t *pData, uint32_t Len, uint3
 
 	}
 USP_RX:
-
 	WriteCom(gSys.ComCtrl.hCom, TxBuf, USP.OutLen);
 	if ( (Cmd == USP_CMD_SET_BR) || (Cmd == USP_CMD_REBOOT) )
 	{
+		WaitForSleep(100);
 		return 0;
 	}
 	Result = MyDeviceUSPRx(RxBuf, USP_LEN_MAX, To);
@@ -377,22 +377,24 @@ static void MyDeviceAutoMode(void)
 						DataStart = (uint8_t *)&gSys.UpgradeFileBuf;
 						while (FinishLen < dwLen)
 						{
-							if ((dwLen - FinishLen) > 256)
+							if ((dwLen - FinishLen) > 1024)
 							{
-								TxLen = 256;
+								TxLen = 1024;
 							}
 							else
 							{
 								TxLen = dwLen - FinishLen;
 							}
-							for (Retry = 0; Retry < 3; Retry++)
+							for (Retry = 0; Retry < 5; Retry++)
 							{
 								Result = MyDeviceUSPProc(USP_CMD_DL_FILE, DataStart + FinishLen, TxLen, 0, USP_COM_TO);
 								if (Result >= 0)
 								{
 									FinishLen += TxLen;
+									gDBG.Trace("%s %u:%d %d!\r\n", __FUNCTION__, __LINE__, FinishLen, dwLen);
 									break;
 								}
+								WaitForSleep(50);
 							}
 
 							if (Result < 0)
@@ -400,6 +402,7 @@ static void MyDeviceAutoMode(void)
 								gDBG.Trace("%s %u:upgrade fail!\r\n", __FUNCTION__, __LINE__);
 								break;
 							}
+							WaitForSleep(10);
 						}
 
 						if (FinishLen >= dwLen)
@@ -429,7 +432,7 @@ static void MyDeviceAutoMode(void)
 			{
 				if (!gSys.ComCtrl.ErrorFlag)
 				{
-					WaitForSleep(10);
+					WaitForSleep(100);
 					Result = MyDeviceUSPProc(USP_CMD_READ_VAR, 0, 0, 0, USP_COM_TO);
 					if (Result != USP_CMD_UPLOAD_VAR)
 					{
@@ -464,7 +467,7 @@ static void MyDeviceAutoMode(void)
 			}
 			if (gSys.ComCtrl.SearchBR != gSys.ComCtrl.CommBR)
 			{
-				MyDeviceUSPProc(USP_CMD_SET_BR, NULL, 0, gSys.ComCtrl.CommBR, 10);
+				MyDeviceUSPProc(USP_CMD_SET_BR, NULL, 0, gSys.ComCtrl.CommBR, 200);
 				CloseHandle(gSys.ComCtrl.hCom);
 				gSys.ComCtrl.hCom = NULL;
 				gDBG.Trace("%s %u:%u\r\n", __FUNCTION__, __LINE__, gSys.ComCtrl.CommBR);

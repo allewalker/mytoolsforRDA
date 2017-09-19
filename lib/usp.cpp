@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "usp.h"
 #include "mydevice.h"
-
+#include "PrintMsg.h"
 void USP_SetHead(USP_AnalyzeStruct *USP, uint16_t Cmd, uint8_t Qos)
 {
 	USP_HeadStruct Head;
@@ -11,6 +11,7 @@ void USP_SetHead(USP_AnalyzeStruct *USP, uint16_t Cmd, uint8_t Qos)
 	Head.DataSize = USP->OutLen;
 	if (Head.DataSize)
 	{
+		gDBG.HexTrace(USP->OutBuf + sizeof(USP_HeadStruct), Head.DataSize);
 		Head.CRC16 = ~CRC16Cal(USP->OutBuf + sizeof(USP_HeadStruct), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0);
 	}
 	else
