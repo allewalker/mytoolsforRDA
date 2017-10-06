@@ -288,6 +288,15 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(CAR_OWN0_RAW + 6, 1 + 2 * LIST_OTHER_PARAM_COL, L"³µÖ÷ºÅÂë7");
 	
 	Reset();
+	uint32_t x = 128;
+	uint8_t y;
+	uint32_t Sum = 0;
+	for (y = 0; y <= 3; y++)
+	{
+		Sum += 127 * IntPow(x, y);
+		
+	}
+	gDBG.Trace("%u\r\n", Sum);
 // 	Date_UserDataStruct Date, Date2;
 // 	Time_UserDataStruct Time, Time2;
 // 	uint64_t Tamp;

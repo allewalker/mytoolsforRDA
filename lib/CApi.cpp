@@ -133,6 +133,21 @@ uint32_t StrToUint(const uint8_t *Src)
 	return hex_temp;
 }
 
+uint32_t IntPow(uint32_t x, uint8_t y)
+{
+	uint32_t res = 1;
+	uint8_t i;
+	if (!y)
+	{
+		return 1;
+	}
+	for(i = 0; i < y; i++)
+	{
+		res = res * x;
+	}
+	return res;
+}
+
 /************************************************************************/
 /*时间与时间戳转换，C语言实现                                                                    */
 /************************************************************************/
