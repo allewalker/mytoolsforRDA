@@ -155,11 +155,11 @@ LongInt UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 	if (DYear)	//1970年以后,1972是第一个闰年,2100年是非闰年
 	{
 		//DDay = DYear * 365 + ((DYear + 2) / 4) - ((DYear + 2) / 100) + ((DYear + 2) / 400)
-		DDay = DYear * 365 + ((DYear + 2) / 4) + DayTable[IsLeapYear(Date->Year)][Date->Mon - 1] + (Date->Day - 1);
-		if (IsLeapYear(Date->Year))
-		{
-			DDay--;
-		}
+		DDay = DYear * 365 + ((DYear + 1) / 4) + DayTable[IsLeapYear(Date->Year)][Date->Mon - 1] + (Date->Day - 1);
+// 		if (IsLeapYear(Date->Year))
+// 		{
+// 			DDay--;
+// 		}
 		if (Date->Year >= 2100)
 		{
 			Year100 = Date->Year - 2100;

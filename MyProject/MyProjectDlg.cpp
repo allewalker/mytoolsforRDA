@@ -288,23 +288,23 @@ BOOL CMyProjectDlg::OnInitDialog()
 	mMyShowList.SetItemText(CAR_OWN0_RAW + 6, 1 + 2 * LIST_OTHER_PARAM_COL, L"³µÖ÷ºÅÂë7");
 	
 	Reset();
-// 	Date_UserDataStruct Date, Date2;
-// 	Time_UserDataStruct Time, Time2;
-// 	uint64_t Tamp;
-// 	Date.Year = 2019;
-// 	Date.Mon = 9;
-// 	Date.Day = 14;
-// 	Time.Hour = 23;
-// 	Time.Min = 59;
-// 	Time.Sec = 59;
-// 	for (Date.Year = 2017; Date.Year <= 2027; Date.Year++)
-// 	{
-// 		gDBG.Trace("%u\r\n", Date.Year);;
-// 		Tamp = UTC2Tamp(&Date, &Time) - 8 * 3600;
-// 		gDBG.Trace("%u\r\n", Tamp);;
-// 		Tamp2UTC(Tamp + 8 * 3600, &Date2, &Time2, 0);
-// 		gDBG.Trace("%d %d %d %d %d %d\r\n", Date2.Year, Date2.Mon, Date2.Day, Time2.Hour, Time2.Min, Time2.Sec);
-// 	}
+	Date_UserDataStruct Date, Date2;
+	Time_UserDataStruct Time, Time2;
+	uint64_t Tamp;
+	Date.Year = 2019;
+	Date.Mon = 9;
+	Date.Day = 14;
+	Time.Hour = 23;
+	Time.Min = 59;
+	Time.Sec = 59;
+	for (Date.Year = 2017; Date.Year <= 2027; Date.Year++)
+	{
+		gDBG.Trace("%u\r\n", Date.Year);;
+		Tamp = UTC2Tamp(&Date, &Time) - 8 * 3600;
+		gDBG.Trace("%u\r\n", Tamp);;
+		Tamp2UTC(Tamp + 8 * 3600, &Date2, &Time2, 0);
+		gDBG.Trace("%d %d %d %d %d %d\r\n", Date2.Year, Date2.Mon, Date2.Day, Time2.Hour, Time2.Min, Time2.Sec);
+	}
 
 // 	double lat1 = 38.694290, lgt1 = 179.0, lat2 = 38.694290, lgt2 = -179.0;
 // 	gDBG.Trace("%f", GPS_Distance(lat1, lat2, lgt1, lgt2));
